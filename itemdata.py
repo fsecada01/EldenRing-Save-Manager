@@ -165,6 +165,7 @@ item_dict = {
     'R- Rot Goddess': [138, 11],
     'R- Starsourge': [135, 11],
     'R- The Grafted': [134, 11],
+    'R- Boar': [212, 143, 30],
     },
 
 }

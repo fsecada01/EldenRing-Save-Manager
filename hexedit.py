@@ -675,6 +675,7 @@ def additem(file, slot, itemids, quantity):
         bool: True if the item was successfully added, None otherwise.
     """
 
+    itemids.append(0)
     cs = get_slot_ls(file)[slot - 1]
     slices = get_slot_slices(file)
     s_start = slices[slot - 1][0]
@@ -697,7 +698,7 @@ def additem(file, slot, itemids, quantity):
             if (
                 l_endian(cs[ind : ind + 1]) == cur[0]
                 and l_endian(cs[ind + 1 : ind + 2]) == cur[1]
-                and l_endian(cs[ind + 2 : ind + 3]) == 0
+                and l_endian(cs[ind + 2 : ind + 3]) == cur[2]
                 and l_endian(cs[ind + 3 : ind + 4]) == 176
             ):
                 index.append(ind + 4)
