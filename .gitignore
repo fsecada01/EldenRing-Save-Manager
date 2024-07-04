@@ -1,0 +1,5 @@
+__pycache__/
+data/archive/
+data/config.json
+data/post.update
+data/save-files/

@@ -340,6 +340,7 @@ def load_listbox(lstbox):
     if os.path.isdir(savedir) is True:
         for entry in os.listdir(savedir):
             lstbox.insert(END, "  " + entry.replace("-", " "))
+            lstbox.select_set(0)
 
 
 def create_save():
@@ -1249,6 +1250,10 @@ def set_steam_id_menu():
 def inventory_editor_menu():
 
     def pop_up(txt, bold=True):
+
+        def close(event):
+            win.destroy()
+
         """Basic popup window used only for parent function"""
         win = Toplevel(popupwin)
         win.title("Manager")
@@ -1259,6 +1264,8 @@ def inventory_editor_menu():
         x = popupwin.winfo_x()
         y = popupwin.winfo_y()
         win.geometry("+%d+%d" % (x + 200, y + 200))
+        win.bind('<Return>', close)
+        win.focus_force()
 
 
     def get_char_names(lstbox, drop, v):
@@ -1338,6 +1345,8 @@ def inventory_editor_menu():
             pop_up("Successfully added items")
         return
 
+    def add_b(event):
+        add()
 
     def populate_items(*args):
         global itemdb
@@ -1910,6 +1919,9 @@ def inventory_editor_menu():
     c_vars.set("Character")
     dropdown1 = OptionMenu(popupwin, c_vars, *opts)
     dropdown1.grid(row=3, column=0, padx=(155, 0), pady=(0, 10))
+    get_char_names(lb1, dropdown1, c_vars)
+    charname = dropdown1["menu"].entrycget(0, "label")
+    c_vars.set(charname)
 
     # CATEGORY DROPDOWN
     opts1 = itemdb.categories
@@ -1936,6 +1948,7 @@ def inventory_editor_menu():
     but_set = Button(popupwin, text="Set", command=add)
     but_set.config(font=bolded)
     but_set.grid(row=6, column=0, padx=(155, 0), pady=(22, 10))
+    popupwin.bind('<Return>', add_b)
 
 
 def recovery_menu():
