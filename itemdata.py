@@ -184,7 +184,10 @@ item_dict = {
         "Dragon Heart": 0x4000274c,
         "Lost Ashes of War": 0x40002756,
         "Iris of Grace": 0x401E8CC8,
-        "Iris of Occultation": 0x401E8CD2
+        "Iris of Occultation": 0x401E8CD2,
+        "Hefty Cracked Pot": 0x401EA99C,
+        "Scadutree Fragment": 0x401EAB90,
+        "Revered Spirit Ash": 0x401EABF4
     },
     "Gloveworts": {
         "Grave Glovewort [1]": 0x40002a94,
@@ -235,11 +238,13 @@ item_dict = {
         "Silver-Pickled Fowl Foot": 0x400004a6,
         "Gold-Pickled Fowl Foot": 0x400004b0,
         "Exalted Flesh": 0x400004ba,
+        "Deathsbane Jerky": 0x400004c4,
         "Starlight Shards": 0x4000050a,
         "Immunizing White Cured Meat": 0x4000051e,
         "Invigorating White Cured Meat": 0x40000528,
         "Clarifying White Cured Meat": 0x40000532,
         "Dappled White Cured Meat": 0x4000053c,
+        "Deathsbane White Jerky": 0x40000546,
         "Rainbow Stone": 0x400007e4,
         "Glowstone": 0x400007ee,
         "Soft Cotton": 0x40000834,
@@ -262,6 +267,8 @@ item_dict = {
         "Poison Spraymist": 0x40000dfc,
         "Acid Spraymist": 0x40000e1a,
         "Spirit Raisin": 0x401E87A0,
+        "Blessing of Marika": 0x401E8804,
+        "Lulling Branch": 0x401E880E,
         "Dragon Communion Flesh": 0x401E88CC,
         "Dragonscale Flesh": 0x401E88D1,
         "Fingerprint Nostrum": 0x401E88D6,
@@ -275,7 +282,8 @@ item_dict = {
         "Gourmet Scorpion Stew": 0x401E8931,
         "Scorpion Stew (dup1)": 0x401E8932,
         "Gourmet Scorpion Stew (dup1)": 0x401E8933,
-        "Sacred Bloody Flesh": 0x401E893A
+        "Sacred Bloody Flesh": 0x401E893A,
+        "Glinting Nail": 0x401E9100
     },
     "Grease": {
         "Fire Grease": 0x40000578,

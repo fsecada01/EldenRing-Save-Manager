@@ -690,7 +690,7 @@ def additem(file, slot, itemid, quantity):
 
         pos = -1
 
-        for i in range(0, len(cs), 4):
+        for i in range(0, len(cs), 2):
             if i < 30000:
                 continue
             if i > 195000:
