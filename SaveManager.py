@@ -1251,7 +1251,9 @@ def set_steam_id_menu():
 def inventory_editor_menu():
 
     def pop_up(txt, bold=True):
-        labelAddItemStatus.config(text = txt)
+        text.delete("1.0",END)
+        text.insert(END, txt)
+        popupwin.update()
         return
 
         def close(event):
@@ -1306,8 +1308,8 @@ def inventory_editor_menu():
 
 
     def add():
-        labelAddItemStatus.config(text = "Processing...")
-        popupwin.update()
+        pop_up("Processing...")
+
 
         char = c_vars.get()  # "1. charname"
         if char == "Character" or char == "":
@@ -1342,13 +1344,55 @@ def inventory_editor_menu():
         itemid = itemdb.db[cat_vars.get()].get(item)
         archive_file(dest_file, name, "ACTION: Add inventory items", get_charnames(dest_file))
         x = hexedit.additem(dest_file, char_ind, itemid, qty)
-        # x = hexedit.additem(dest_file,char_ind,item, qty)
         if x is None:
-            pop_up(
-                "Failed to edit item count"
-            )
+            pop_up("Failed to edit item count")
         else:
             pop_up("Successfully added items")
+        return
+
+    def add_bulk():
+        pop_up("Processing...")
+
+        char = c_vars.get()  # "1. charname"
+        if char == "Character" or char == "":
+            pop_up("Character not selected")
+            return
+
+        if char.split(".")[1] == " ":
+            pop_up(
+                "Can't write to empty slot.\nGo in-game and create a character to overwrite."
+            )
+            return
+
+        name = fetch_listbox_entry(lb1)[0]  # Save file name. EX: main
+        if len(name) < 1:
+            pop_up(txt="Slot not selected")
+            return
+
+        dest_file = f"{savedir}{name}/{ext()}"
+        char_ind = int(char.split(".")[0])
+
+        qty = qty_ent.get()
+        if qty == "":
+            pop_up("Set a quantity first.")
+            return
+        else:
+            qty = int(qty)
+
+        category_items = itemdb.db[cat_vars.get()]
+
+        archive_file(dest_file, name, "ACTION: Add inventory items", get_charnames(dest_file))
+        failed = []
+        for itemname, itemid in category_items.items():
+            x = hexedit.additem(dest_file, char_ind, itemid, qty)
+            if x is None:
+                failed.append(itemname)
+
+        if not failed:
+            pop_up("Successfully added items")
+        else:
+            msg = "Failed:\n" + '\n'.join(failed)
+            pop_up(msg)
         return
 
     def add_b(event):
@@ -1889,7 +1933,7 @@ def inventory_editor_menu():
     popupwin = Toplevel(root)
     popupwin.title("Inventory Editor")
     popupwin.resizable(width=True, height=True)
-    popupwin.geometry("530x540")
+    popupwin.geometry("530x640")
 
     vcmd = (popupwin.register(validate), "%P")
 
@@ -1911,9 +1955,9 @@ def inventory_editor_menu():
 
 
     # MAIN SAVE FILE LISTBOX
-    lb1 = Listbox(popupwin, borderwidth=3, width=15, height=10, exportselection=0)
+    lb1 = Listbox(popupwin, borderwidth=3, width=15, height=3, exportselection=0)
     lb1.config(font=bolded)
-    lb1.grid(row=1, column=0, padx=(155, 0), pady=(35, 15))
+    lb1.grid(row=1, column=0)
     load_listbox(lb1)
 
     # SELECT LISTBOX ITEM BUTTON
@@ -1921,14 +1965,14 @@ def inventory_editor_menu():
         popupwin, text="Select", command=lambda: get_char_names(lb1, dropdown1, c_vars)
     )
     # but_select1.config(bg='grey', fg='white')
-    but_select1.grid(row=2, column=0, padx=(155, 0), pady=(0, 10))
+    but_select1.grid(row=2, column=0)
 
     # CHARACTER DROPDOWN MENU
     opts = [""]
     c_vars = StringVar(popupwin)
     c_vars.set("Character")
     dropdown1 = OptionMenu(popupwin, c_vars, *opts)
-    dropdown1.grid(row=3, column=0, padx=(155, 0), pady=(0, 10))
+    dropdown1.grid(row=3, column=0)
     get_char_names(lb1, dropdown1, c_vars)
     charname = dropdown1["menu"].entrycget(0, "label")
     c_vars.set(charname)
@@ -1940,28 +1984,36 @@ def inventory_editor_menu():
     dropdown2 = OptionMenu(popupwin, cat_vars, *opts1)
 
     cat_vars.trace("w", populate_items)
-    dropdown2.grid(row=4, column=0, padx=(155, 0), pady=(0, 10))
+    dropdown2.grid(row=1, column=1)
 
     # ITEM DROPDOWN
     opts2 = [""]
     i_vars = StringVar(popupwin)
     i_vars.set("Items")
     dropdown3 = OptionMenu(popupwin, i_vars, *opts2)
-    dropdown3.grid(row=5, column=0, padx=(155, 0), pady=(0, 10))
+    dropdown3.grid(row=2, column=1)
 
     qty_ent = Entry(
         popupwin, borderwidth=5, width=3, validate="key", validatecommand=vcmd
     )
-    qty_ent.grid(row=5, column=0, padx=(345, 0), pady=(0, 10))
+    qty_ent.grid(row=3, column=1)
 
     # ADD ITEM BUTTON
     but_set = Button(popupwin, text="Set", command=add)
     but_set.config(font=bolded)
-    but_set.grid(row=6, column=0, padx=(155, 0), pady=(22, 10))
+    but_set.grid(row=4, column=1)
     popupwin.bind('<Return>', add_b)
 
-    labelAddItemStatus = Label(popupwin, text="Status")
-    labelAddItemStatus.grid(row=7, column=0, padx=(155, 0), pady=(0, 10))
+    # ADD BULK ITEM BUTTON
+    but_set = Button(popupwin, text="Set bulk", command=add_bulk)
+    but_set.config(font=bolded)
+    but_set.grid(row=5, column=1)
+
+    scroll=Scrollbar(popupwin, orient='vertical')
+    text=Text(popupwin, height=24 ,width=40, yscrollcommand=scroll.set)
+    scroll.config(command=text.yview)
+    text.grid(row=6, column=0, columnspan = 2)
+    scroll.grid(row=6, column=1,  columnspan = 2, sticky=N+S+W)
 
 
 def recovery_menu():
