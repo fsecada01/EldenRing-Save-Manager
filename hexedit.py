@@ -830,7 +830,7 @@ def find_inventory(file,slot,ids):
 
 
 def get_inventory(file, slot):
-    items = dict([(f"{v[0]}:{v[1]}",k) for k,v in itemdict.items()])
+    items = dict([(v,k) for k,v in itemdict.items()])
     with open(file, "rb") as f:
         dat = f.read()
         ind = find_inventory(file, slot, [106,0]) # Search for Tarnished Wizened Finger ( you get it at beginning of game)
@@ -841,9 +841,9 @@ def get_inventory(file, slot):
 
         for i in range(2048):
 
-            ids = f"{l_endian(c1[ind:ind+1])}:{l_endian(c1[ind+1:ind+2])}"
+            itemid = c1[ind] | (c1[ind + 1] << 8) | (c1[ind + 2] << 16) | (0x40 << 24)
             try:
-                name = items[ids]
+                name = items[itemid]
             except KeyError:
                 name = "?"
 
@@ -864,26 +864,23 @@ def get_inventory(file, slot):
     for i in sorted_ls:
         if i["name"] == "?":
             continue
-        if i["uid"] == [0,176]: #  or i["uid"] == [128,128]
-            finished_ls.append(i)
+        finished_ls.append(i)
 
     return finished_ls
 
 
-def overwrite_item(file,slot, item_dict_entry, newids):
+def overwrite_item(file,slot, item_dict_entry, newid):
     #entry = {'name': 'Smithing Stone :[8]', 'item_id': [123, 39], 'uid': [0, 176], 'quantity': 63, 'pad1': [0, 0, 0], 'iter': 103, 'pad2': [58, 0, 0], 'index': 63987}
 
     pos = item_dict_entry["index"]
 
-    for id in newids:
-        cs = get_slot_ls(file)[slot-1]
-        slices = get_slot_slices(file)
-        s_start = slices[slot - 1][0]
-        s_end = slices[slot - 1][1]
-        ch = ( s_start + cs[:pos] + id.to_bytes(1, "little") + cs[pos + 1 :] + s_end )
-        with open(file, "wb") as fh:
-            fh.write(ch)
-        pos += 1
+    cs = get_slot_ls(file)[slot-1]
+    slices = get_slot_slices(file)
+    s_start = slices[slot - 1][0]
+    s_end = slices[slot - 1][1]
+    ch = ( s_start + cs[:pos] + newid.to_bytes(4, "little")[:3] + cs[pos + 3 :] + s_end )
+    with open(file, "wb") as fh:
+        fh.write(ch)
 
     recalc_checksum(file)
 

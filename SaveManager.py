@@ -1345,7 +1345,7 @@ def inventory_editor_menu():
         # x = hexedit.additem(dest_file,char_ind,item, qty)
         if x is None:
             pop_up(
-                "Unable to set quantity. Ensure you have at least 1 of the selected items.\nIf you already have one of the items in your inventory and are still unable to set the quantity,\nGo to Custom Items > Search and manually scan for the item ID."
+                "Unable to set quantity. Ensure you have at least 1 of the selected items."
             )
         else:
             pop_up("Successfully added items")
