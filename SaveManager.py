@@ -141,6 +141,7 @@ def popup(text, command=None, functions=False, buttons=False, button_names=("Yes
 
 
 def archive_file(file, name, metadata, names):
+    return
     try:
         name = name.replace(" ", "_")
 
@@ -1250,6 +1251,8 @@ def set_steam_id_menu():
 def inventory_editor_menu():
 
     def pop_up(txt, bold=True):
+        labelAddItemStatus.config(text = txt)
+        return
 
         def close(event):
             win.destroy()
@@ -1303,6 +1306,9 @@ def inventory_editor_menu():
 
 
     def add():
+        labelAddItemStatus.config(text = "Processing...")
+        popupwin.update()
+
         char = c_vars.get()  # "1. charname"
         if char == "Character" or char == "":
             pop_up("Character not selected")
@@ -1949,6 +1955,9 @@ def inventory_editor_menu():
     but_set.config(font=bolded)
     but_set.grid(row=6, column=0, padx=(155, 0), pady=(22, 10))
     popupwin.bind('<Return>', add_b)
+
+    labelAddItemStatus = Label(popupwin, text="Status")
+    labelAddItemStatus.grid(row=7, column=0, padx=(155, 0), pady=(0, 10))
 
 
 def recovery_menu():
