@@ -1345,7 +1345,7 @@ def inventory_editor_menu():
         # x = hexedit.additem(dest_file,char_ind,item, qty)
         if x is None:
             pop_up(
-                "Unable to set quantity. Ensure you have at least 1 of the selected items."
+                "Failed to edit item count"
             )
         else:
             pop_up("Successfully added items")
@@ -1796,7 +1796,8 @@ def inventory_editor_menu():
                     inv_lb.delete(0,END)
                     return
 
-
+        def replace_item_b():
+            replace_item()
 
 
         popupwin.destroy()
@@ -1834,7 +1835,9 @@ def inventory_editor_menu():
         c_vars.set("Character")
         dropdown1 = OptionMenu(win, c_vars, *opts)
         dropdown1.grid(row=3, column=0, padx=(10, 0), pady=(0, 0))
-
+        get_char_names(lb1, dropdown1, c_vars)
+        charname = dropdown1["menu"].entrycget(0, "label")
+        c_vars.set(charname)
 
         # LABEL REPLACE WITH
         repl_lab = Label(win, text="Replace with:")
@@ -1869,8 +1872,9 @@ def inventory_editor_menu():
         # get inventory button
         but_get_inv = Button(win, text="Get Inventory", command=populate_inventory )
         but_get_inv.grid(row=2, column=2, padx=(10, 0), pady=(10, 10))
+        populate_inventory()
 
-
+        win.bind('<Return>', replace_item_b)
 
 
 
@@ -1950,7 +1954,7 @@ def inventory_editor_menu():
     )
     qty_ent.grid(row=5, column=0, padx=(345, 0), pady=(0, 10))
 
-    # SELECT LISTBOX ITEM BUTTON
+    # ADD ITEM BUTTON
     but_set = Button(popupwin, text="Set", command=add)
     but_set.config(font=bolded)
     but_set.grid(row=6, column=0, padx=(155, 0), pady=(22, 10))

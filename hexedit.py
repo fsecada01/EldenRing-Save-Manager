@@ -839,7 +839,7 @@ def get_inventory(file, slot):
         ls = []
         ind -= (12 * 1024) # inventory item entry is 12 bytes long, so decrement index to beginning of inv
 
-        for i in range(2048):
+        for i in range(2048*2):
 
             itemid = c1[ind] | (c1[ind + 1] << 8) | (c1[ind + 2] << 16) | (0x40 << 24)
             try:
