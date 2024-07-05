@@ -661,7 +661,7 @@ def set_attributes(file, slot, lvls, cheat=False):
     recalc_checksum(file)
 
 
-def additem(file, slot, itemids, quantity):
+def additem(file, slot, itemid, quantity):
     """
     Adds an item with the specified item IDs and quantity to a character's inventory in a given slot.
 
@@ -675,45 +675,33 @@ def additem(file, slot, itemids, quantity):
         bool: True if the item was successfully added, None otherwise.
     """
 
-    itemids.append(0)
     cs = get_slot_ls(file)[slot - 1]
     slices = get_slot_slices(file)
     s_start = slices[slot - 1][0]
     s_end = slices[slot - 1][1]
 
+    if itemid is None:
+        return None
+    itemidv1 = itemid & 0x00FFFFFF | (0xB0   << 24)
+    itemidv2 = itemid & 0x0000FFFF | (0x8080 << 16)
+
     with open(file, "rb") as f:
         dat = f.read()
 
-        index = []
-        cur = [int(i) for i in itemids]
+        pos = -1
 
-        if cur is None:
-            return None
-
-        for ind, i in enumerate(cs):
-            if ind < 30000:
+        for i in range(0, len(cs), 4):
+            if i < 30000:
                 continue
-            if ind > 195000:
+            if i > 195000:
                 continue
-            if (
-                l_endian(cs[ind : ind + 1]) == cur[0]
-                and l_endian(cs[ind + 1 : ind + 2]) == cur[1]
-                and l_endian(cs[ind + 2 : ind + 3]) == cur[2]
-                and l_endian(cs[ind + 3 : ind + 4]) == 176
-            ):
-                index.append(ind + 4)
-            elif (
-                l_endian(cs[ind : ind + 1]) == cur[0]
-                and l_endian(cs[ind + 1 : ind + 2]) == cur[1]
-                and l_endian(cs[ind + 2 : ind + 3]) == 128
-                and l_endian(cs[ind + 3 : ind + 4]) == 128
-            ):
-                index.append(ind + 4)
+            saveEntryInt32 = int.from_bytes([cs[i + 0], cs[i + 1], cs[i + 2], cs[i + 3]], byteorder='little')
+            if saveEntryInt32 == itemidv1 or saveEntryInt32 == itemidv2:
+                pos = i + 4
+                break
 
-        if len(index) < 1:
+        if pos < 0:
             return None
-        else:
-            pos = index[0]
 
         with open(file, "wb") as fh:
             ch = (
