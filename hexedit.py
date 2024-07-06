@@ -696,7 +696,7 @@ def additem(file, slot, itemid, quantity):
             if i > 300000:
                 break
             saveEntryInt32 = int.from_bytes([cs[i + 0], cs[i + 1], cs[i + 2], cs[i + 3]], byteorder='little')
-            if saveEntryInt32 == itemidv1 or saveEntryInt32 == itemidv2:
+            if saveEntryInt32 == itemidv1:
                 pos = i + 4
                 break
 
