@@ -247,7 +247,7 @@ item_dict = {
         "Clarifying White Cured Meat": 0x40000532,
         "Dappled White Cured Meat": 0x4000053c,
         "Deathsbane White Jerky": 0x40000546,
-        "Throwing Dagger": 0x400006a4
+        "Throwing Dagger": 0x400006a4,
         "Bone Dart": 0x400006ae,
         "Poisonbone Dart": 0x400006b8,
         "Kukri": 0x400006c2,
