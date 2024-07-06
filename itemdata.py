@@ -308,6 +308,7 @@ item_dict = {
         "Lamenter's Mask": 0x401E8C6E,
         "Ancient Dragon's Blessing": 0x401E8CB4,
         "Spritestone": 0x401E9039,
+        "Call of Tibia": 0x401E90CE,
         "Surging Frenzied Flame": 0x401E90D8,
         "Golden Vow": 0x401E90E2,
         "Fire Coil": 0x401E90EC,
