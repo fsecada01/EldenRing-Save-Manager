@@ -1,8 +1,15 @@
-import subprocess, os, zipfile, requests, time
+import os
+import subprocess
+import time
+import zipfile
+
+import requests
+
 from os_layer import copy_folder, delete_folder
 
-
-version_url = "https://github.com/Ariescyn/EldenRing-Save-Manager/releases/latest"
+version_url = (
+    "https://github.com/Ariescyn/EldenRing-Save-Manager/releases/latest"
+)
 r = requests.get(version_url)  # Get redirect url
 ver = float(r.url.split("/")[-1].split("v")[1])
 update_url = f"https://github.com/Ariescyn/EldenRing-Save-Manager/releases/download/v{str(ver)}/EldenRing-Save-Manager-v{str(ver)}-portable.zip"

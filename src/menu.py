@@ -26,6 +26,7 @@ from tkinter import filedialog as fd
 from tkinter import font as FNT
 
 from save_manager import bolded
+
 from src import hexedit, itemdata
 from src.consts import config, lb, root
 from src.os_layer import (
@@ -98,14 +99,14 @@ def char_manager_menu():
     def do_copy():
         def pop_up(txt, bold=True):
             """Basic popup window used only for parent function"""
-            win = Toplevel(popupwin)
+            win = Toplevel(pop_up_win)
             win.title("Manager")
             lab = Label(win, text=txt)
             if bold is True:
                 lab.config(font=bolded)
             lab.grid(row=0, column=0, padx=15, pady=15, columnspan=2)
-            x = popupwin.winfo_x()
-            y = popupwin.winfo_y()
+            x = pop_up_win.winfo_x()
+            y = pop_up_win.winfo_y()
             win.geometry("+%d+%d" % (x + 200, y + 200))
 
         src_char = vars1.get()  # "1. charname"
@@ -177,7 +178,7 @@ def char_manager_menu():
             def command():
                 return copy_file(src_file, backup_path)
 
-            x = run_command(command)
+            run_command(command)
             rand_name = hexedit.random_str()
             rename_char(
                 backup_path, rand_name, src_ind
@@ -235,22 +236,22 @@ def char_manager_menu():
         pop_up(txt="Success!")
 
     def cancel():
-        popupwin.destroy()
+        pop_up_win.destroy()
 
     # Main GUI content
-    popupwin = Toplevel(root)
-    popupwin.title("Character Manager")
-    popupwin.resizable(width=True, height=True)
-    popupwin.geometry("620x500")
+    pop_up_win = Toplevel(root)
+    pop_up_win.title("Character Manager")
+    pop_up_win.resizable(width=True, height=True)
+    pop_up_win.geometry("620x500")
 
     bolded = FNT.Font(weight="bold")  # will use the default font
 
     x = root.winfo_x()
     y = root.winfo_y()
-    popupwin.geometry("+%d+%d" % (x + 200, y + 200))
+    pop_up_win.geometry("+%d+%d" % (x + 200, y + 200))
 
-    menubar = Menu(popupwin)
-    popupwin.config(
+    menubar = Menu(pop_up_win)
+    pop_up_win.config(
         menu=menubar
     )  # menu is a parameter that lets you set a menubar for any given window
 
@@ -259,23 +260,23 @@ def char_manager_menu():
     helpmen.add_command(label="Watch Video", command=open_video)
     menubar.add_cascade(label="Help", menu=helpmen)
 
-    srclab = Label(popupwin, text="Source File")
+    srclab = Label(pop_up_win, text="Source File")
     srclab.config(font=bolded)
     srclab.grid(row=0, column=0, padx=(70, 0), pady=(20, 0))
 
     lb1 = Listbox(
-        popupwin, borderwidth=3, width=15, height=10, exportselection=0
+        pop_up_win, borderwidth=3, width=15, height=10, exportselection=0
     )
     lb1.config(font=bolded)
     lb1.grid(row=1, column=0, padx=(70, 0), pady=(0, 0))
     load_listbox(lb1)
 
-    destlab = Label(popupwin, text="Destination File")
+    destlab = Label(pop_up_win, text="Destination File")
     destlab.config(font=bolded)
     destlab.grid(row=0, column=1, padx=(175, 0), pady=(20, 0))
 
     lb2 = Listbox(
-        popupwin, borderwidth=3, width=15, height=10, exportselection=0
+        pop_up_win, borderwidth=3, width=15, height=10, exportselection=0
     )
     lb2.config(font=bolded)
     lb2.grid(row=1, column=1, padx=(175, 0), pady=(0, 0))
@@ -283,37 +284,37 @@ def char_manager_menu():
 
     opts = [""]
     opts2 = [""]
-    vars1 = StringVar(popupwin)
+    vars1 = StringVar(pop_up_win)
     vars1.set("Character")
 
-    vars2 = StringVar(popupwin)
+    vars2 = StringVar(pop_up_win)
     vars2.set("Character")
 
-    dropdown1 = OptionMenu(popupwin, vars1, *opts)
+    dropdown1 = OptionMenu(pop_up_win, vars1, *opts)
     dropdown1.grid(row=4, column=0, padx=(70, 0), pady=(20, 0))
 
-    dropdown2 = OptionMenu(popupwin, vars2, *opts2)
+    dropdown2 = OptionMenu(pop_up_win, vars2, *opts2)
     dropdown2.grid(row=4, column=1, padx=(175, 0), pady=(20, 0))
 
     but_select1 = Button(
-        popupwin,
+        pop_up_win,
         text="Select",
         command=lambda: get_char_names(lb1, dropdown1, vars1),
     )
     but_select1.grid(row=3, column=0, padx=(70, 0), pady=(10, 0))
 
     but_select2 = Button(
-        popupwin,
+        pop_up_win,
         text="Select",
         command=lambda: get_char_names(lb2, dropdown2, vars2),
     )
     but_select2.grid(row=3, column=1, padx=(175, 0), pady=(10, 0))
 
-    but_copy = Button(popupwin, text="Copy", command=do_copy)
+    but_copy = Button(pop_up_win, text="Copy", command=do_copy)
     but_copy.config(font=bolded)
     but_copy.grid(row=5, column=1, padx=(175, 0), pady=(50, 0))
 
-    but_cancel = Button(popupwin, text="Cancel", command=cancel)
+    but_cancel = Button(pop_up_win, text="Cancel", command=cancel)
     but_cancel.config(font=bolded)
     but_cancel.grid(row=5, column=0, padx=(70, 0), pady=(50, 0))
 
@@ -366,7 +367,7 @@ def rename_characters_menu():
 
     chars = []
     for ind, i in enumerate(names):
-        if i != None:
+        if i is not None:
             chars.append(f"{ind + 1}. {i}")
 
     rwin = Toplevel(root)
@@ -374,7 +375,7 @@ def rename_characters_menu():
     rwin.resizable(width=True, height=True)
     rwin.geometry("300x200")
 
-    bolded = FNT.Font(weight="bold")  # will use the default font
+    FNT.Font(weight="bold")  # will use the default font
     x = root.winfo_x()
     y = root.winfo_y()
     rwin.geometry("+%d+%d" % (x + 200, y + 200))
@@ -430,7 +431,7 @@ def stat_editor_menu():
         min_val = stats[1]
         env_val = stats[2]
 
-        char = vars.get().split(". ")[1]
+        vars.get().split(". ")[1]
         char_slot = int(vars.get().split(".")[0])
         name = fetch_listbox_entry(lb1)[0]
         file = f"{save_dir}{name}/{ext()}"
@@ -715,7 +716,7 @@ def set_steam_id_menu():
 
     pop_up_win.title("Set SteamID")
     vcmd = (pop_up_win.register(validate), "%P")
-    # popupwin.geometry("200x70")
+    # pop_up_win.geometry("200x70")
     id_lab = Label(pop_up_win, text=f"Current ID: {cur_id}")
     id_lab.grid(row=0, column=0)
     lab = Label(pop_up_win, text="Enter new ID:")
@@ -740,21 +741,21 @@ def inventory_editor_menu():
     def pop_up(txt, bold=True):
         text.delete("1.0", END)
         text.insert(END, txt)
-        popupwin.update()
+        pop_up_win.update()
         return
 
         def close(event):
             win.destroy()
 
         """Basic popup window used only for parent function"""
-        win = Toplevel(popupwin)
+        win = Toplevel(pop_up_win)
         win.title("Manager")
         lab = Label(win, text=txt)
         if bold is True:
             lab.config(font=bolded)
         lab.grid(row=0, column=0, padx=15, pady=15, columnspan=2)
-        x = popupwin.winfo_x()
-        y = popupwin.winfo_y()
+        x = pop_up_win.winfo_x()
+        y = pop_up_win.winfo_y()
         win.geometry("+%d+%d" % (x + 200, y + 200))
         win.bind("<Return>", close)
         win.focus_force()
@@ -898,7 +899,7 @@ def inventory_editor_menu():
             delete_folder(f"{temp_dir}3")
         except Exception:
             pass
-        popupwin.destroy()
+        pop_up_win.destroy()
         find_itemid()
 
     def add_custom_id():
@@ -915,7 +916,7 @@ def inventory_editor_menu():
                 return
 
             idwin.destroy()
-            popupwin.destroy()
+            pop_up_win.destroy()
             inventory_editor_menu()
 
         def validate_id(P):
@@ -934,7 +935,7 @@ def inventory_editor_menu():
         idwin.title("Add Custom ID")
         vcmd_id = (idwin.register(validate_id), "%P")
         vcmd_name = (idwin.register(validate_name), "%P")
-        # popupwin.geometry("200x70")
+        # pop_up_win.geometry("200x70")
 
         x = root.winfo_x()
         y = root.winfo_y()
@@ -1053,22 +1054,22 @@ def inventory_editor_menu():
                         f"Something went wrong.\nvalues: {name, id}\nError: {e}"
                     )
                     return
-                popupwin.destroy()
+                pop_up_win.destroy()
 
-            popupwin = Toplevel(window)
-            popupwin.title("Add Item ID")
-            vcmd = (popupwin.register(validate), "%P")
-            # popupwin.geometry("200x70")
+            pop_up_win = Toplevel(window)
+            pop_up_win.title("Add Item ID")
+            (pop_up_win.register(validate), "%P")
+            # pop_up_win.geometry("200x70")
 
-            lab = Label(popupwin, text=f"Item ID: {id}\nEnter item name:")
+            lab = Label(pop_up_win, text=f"Item ID: {id}\nEnter item name:")
             lab.grid(row=0, column=0)
-            name_ent = Entry(popupwin, borderwidth=5)
+            name_ent = Entry(pop_up_win, borderwidth=5)
             name_ent.grid(row=1, column=0, padx=25, pady=10)
             x = window.winfo_x()
             y = window.winfo_y()
-            popupwin.geometry("+%d+%d" % (x + 200, y + 200))
+            pop_up_win.geometry("+%d+%d" % (x + 200, y + 200))
             but_done = Button(
-                popupwin,
+                pop_up_win,
                 text="Add",
                 borderwidth=5,
                 width=6,
@@ -1078,11 +1079,11 @@ def inventory_editor_menu():
                 row=2, column=0, padx=(25, 65), pady=(0, 15), sticky="w"
             )
             but_cancel = Button(
-                popupwin,
+                pop_up_win,
                 text="Cancel",
                 borderwidth=5,
                 width=6,
-                command=lambda: popupwin.destroy(),
+                command=lambda: pop_up_win.destroy(),
             )
             but_cancel.grid(row=2, column=0, padx=(70, 0), pady=(0, 15))
 
@@ -1094,30 +1095,34 @@ def inventory_editor_menu():
                     popup("No value selected!")
                     return
                 else:
-                    popupwin.destroy()
+                    pop_up_win.destroy()
                     name_id_popup(indexes[int(ind)])
 
-            popupwin = Toplevel(window)
-            popupwin.title("Add Item ID")
-            vcmd = (popupwin.register(validate), "%P")
+            pop_up_win = Toplevel(window)
+            pop_up_win.title("Add Item ID")
+            (pop_up_win.register(validate), "%P")
             x = window.winfo_x()
             y = window.winfo_y()
-            popupwin.geometry("+%d+%d" % (x + 200, y + 200))
+            pop_up_win.geometry("+%d+%d" % (x + 200, y + 200))
             lab = Label(
-                popupwin,
+                pop_up_win,
                 text="Multiple locations found! Select an address.\nLower "
                 "addresses have a higher chance of success.",
             )
             lab.grid(row=0, column=0, padx=(5, 5))
 
             lb1 = Listbox(
-                popupwin, borderwidth=3, width=19, height=10, exportselection=0
+                pop_up_win,
+                borderwidth=3,
+                width=19,
+                height=10,
+                exportselection=0,
             )
             lb1.config(font=bolded)
             lb1.grid(row=1, column=0)
 
             but_select = Button(
-                popupwin,
+                pop_up_win,
                 text="Select",
                 borderwidth=5,
                 width=6,
@@ -1127,11 +1132,11 @@ def inventory_editor_menu():
                 row=2, column=0, padx=(50, 65), pady=(5, 15), sticky="w"
             )
             but_cancel = Button(
-                popupwin,
+                pop_up_win,
                 text="Cancel",
                 borderwidth=5,
                 width=6,
-                command=lambda: popupwin.destroy(),
+                command=lambda: pop_up_win.destroy(),
             )
             but_cancel.grid(row=2, column=0, padx=(85, 0), pady=(5, 15))
             # Insert itemids alongside addresses so users can see if ids are
@@ -1292,12 +1297,12 @@ def inventory_editor_menu():
             except Exception as e:
                 popup(f"Error: Unable to delete Item\n\n{repr(e)}")
             idwin.destroy()
-            popupwin.destroy()
+            pop_up_win.destroy()
             inventory_editor_menu()
 
         idwin = Toplevel(root)
         idwin.title("Remove Custom ID")
-        # popupwin.geometry("200x70")
+        # pop_up_win.geometry("200x70")
 
         x = root.winfo_x()
         y = root.winfo_y()
@@ -1341,7 +1346,7 @@ def inventory_editor_menu():
                         label=i, command=TKIN._setit(i_vars, i)
                     )
             i_vars.set("Items")  # default value set
-            char = c_vars.get()
+            c_vars.get()
 
         def populate_inventory():
             inv_lb.delete(0, END)
@@ -1438,7 +1443,7 @@ def inventory_editor_menu():
         def replace_item_b():
             replace_item()
 
-        popupwin.destroy()
+        pop_up_win.destroy()
         win = Toplevel(root)
         win.title("Replace Items")
         win.resizable(width=True, height=True)
@@ -1535,21 +1540,21 @@ def inventory_editor_menu():
         win.bind("<Return>", replace_item_b)
 
     # Main GUI content STAT
-    popupwin = Toplevel(root)
-    popupwin.title("Inventory Editor")
-    popupwin.resizable(width=True, height=True)
-    popupwin.geometry("530x640")
+    pop_up_win = Toplevel(root)
+    pop_up_win.title("Inventory Editor")
+    pop_up_win.resizable(width=True, height=True)
+    pop_up_win.geometry("530x640")
 
-    vcmd = (popupwin.register(validate), "%P")
+    vcmd = (pop_up_win.register(validate), "%P")
 
     bolded = FNT.Font(weight="bold")  # will use the default font
 
     x = root.winfo_x()
     y = root.winfo_y()
-    popupwin.geometry("+%d+%d" % (x + 200, y + 200))
+    pop_up_win.geometry("+%d+%d" % (x + 200, y + 200))
 
-    menubar = Menu(popupwin)
-    popupwin.config(menu=menubar)
+    menubar = Menu(pop_up_win)
+    pop_up_win.config(menu=menubar)
     helpmenu = Menu(menubar, tearoff=0)
     helpmenu.add_command(label="Replace item", command=replace_menu)
     helpmenu.add_command(label="Search", command=manual_search)
@@ -1566,7 +1571,7 @@ def inventory_editor_menu():
 
     # MAIN SAVE FILE LISTBOX
     lb1 = Listbox(
-        popupwin, borderwidth=3, width=15, height=3, exportselection=0
+        pop_up_win, borderwidth=3, width=15, height=3, exportselection=0
     )
     lb1.config(font=bolded)
     lb1.grid(row=1, column=0)
@@ -1574,7 +1579,7 @@ def inventory_editor_menu():
 
     # SELECT LISTBOX ITEM BUTTON
     but_select1 = Button(
-        popupwin,
+        pop_up_win,
         text="Select",
         command=lambda: get_char_names(lb1, dropdown1, c_vars),
     )
@@ -1583,9 +1588,9 @@ def inventory_editor_menu():
 
     # CHARACTER DROPDOWN MENU
     opts = [""]
-    c_vars = StringVar(popupwin)
+    c_vars = StringVar(pop_up_win)
     c_vars.set("Character")
-    dropdown1 = OptionMenu(popupwin, c_vars, *opts)
+    dropdown1 = OptionMenu(pop_up_win, c_vars, *opts)
     dropdown1.grid(row=3, column=0)
     get_char_names(lb1, dropdown1, c_vars)
     charname = dropdown1["menu"].entrycget(0, "label")
@@ -1593,38 +1598,38 @@ def inventory_editor_menu():
 
     # CATEGORY DROPDOWN
     opts1 = itemdb.categories
-    cat_vars = StringVar(popupwin)
+    cat_vars = StringVar(pop_up_win)
     cat_vars.set("Category")
-    dropdown2 = OptionMenu(popupwin, cat_vars, *opts1)
+    dropdown2 = OptionMenu(pop_up_win, cat_vars, *opts1)
 
     cat_vars.trace("w", populate_items)
     dropdown2.grid(row=1, column=1)
 
     # ITEM DROPDOWN
     opts2 = [""]
-    i_vars = StringVar(popupwin)
+    i_vars = StringVar(pop_up_win)
     i_vars.set("Items")
-    dropdown3 = OptionMenu(popupwin, i_vars, *opts2)
+    dropdown3 = OptionMenu(pop_up_win, i_vars, *opts2)
     dropdown3.grid(row=2, column=1)
 
     qty_ent = Entry(
-        popupwin, borderwidth=5, width=3, validate="key", validatecommand=vcmd
+        pop_up_win, borderwidth=5, width=3, validate="key", validatecommand=vcmd
     )
     qty_ent.grid(row=3, column=1)
 
     # ADD ITEM BUTTON
-    but_set = Button(popupwin, text="Set", command=add)
+    but_set = Button(pop_up_win, text="Set", command=add)
     but_set.config(font=bolded)
     but_set.grid(row=4, column=1)
-    popupwin.bind("<Return>", add_b)
+    pop_up_win.bind("<Return>", add_b)
 
     # ADD BULK ITEM BUTTON
-    but_set = Button(popupwin, text="Set bulk", command=add_bulk)
+    but_set = Button(pop_up_win, text="Set bulk", command=add_bulk)
     but_set.config(font=bolded)
     but_set.grid(row=5, column=1)
 
-    scroll = Scrollbar(popupwin, orient="vertical")
-    text = Text(popupwin, height=24, width=40, yscrollcommand=scroll.set)
+    scroll = Scrollbar(pop_up_win, orient="vertical")
+    text = Text(pop_up_win, height=24, width=40, yscrollcommand=scroll.set)
     scroll.config(command=text.yview)
     text.grid(row=6, column=0, columnspan=2)
     scroll.grid(row=6, column=1, columnspan=2, sticky=N + S + W)
@@ -1790,7 +1795,9 @@ def recovery_menu():
 
 
 def seamless_coop_menu():
-    x = lambda: "Enabled" if config.cfg["seamless-coop"] else "Disabled"
+    def x():
+        return "Enabled" if config.cfg["seamless-coop"] else "Disabled"
+
     popup(
         f"Enable this option to support the seamless Co-op mod .co2 "
         f"extension\nIt's recommended to use a separate copy of the Manager "
@@ -1853,7 +1860,7 @@ def set_playtimes_menu():
 
     chars = []
     for ind, i in enumerate(names):
-        if i != None:
+        if i is not None:
             chars.append(f"{ind + 1}. {i}")
 
     rwin = Toplevel(root)

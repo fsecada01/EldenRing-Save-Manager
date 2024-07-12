@@ -1,5 +1,11 @@
-import binascii, re, hashlib, random, base64, stat_progression, itemdata, os, allitems_dict
+import base64
+import binascii
+import hashlib
+import random
+
+import stat_progression
 from allitems_dict import itemdict
+
 
 def l_endian(val):
     """
@@ -16,9 +22,12 @@ def l_endian(val):
     """
     l_hex = bytearray(val)  # Convert bytes to a bytearray
     l_hex.reverse()  # Reverse the order of bytes to represent little endian
-    str_l = "".join(format(i, "02x") for i in l_hex)  # Convert bytearray to hex string
-    return int(str_l, 16)  # Convert hex string to integer using base 16 (hexadecimal)
-
+    str_l = "".join(
+        format(i, "02x") for i in l_hex
+    )  # Convert bytearray to hex string
+    return int(
+        str_l, 16
+    )  # Convert hex string to integer using base 16 (hexadecimal)
 
 
 def recalc_checksum(file):
@@ -46,17 +55,27 @@ def recalc_checksum(file):
         for i in range(10):
             d = dat[s_ind : s_ind + slot_len + 1]  # Extract data for the slot
             c = dat[c_ind : c_ind + cs_len + 1]  # Extract checksum for the slot
-            slot_ls.append([d, c])  # Append the data and checksum to the slot list
+            slot_ls.append(
+                [d, c]
+            )  # Append the data and checksum to the slot list
             s_ind += 2621456  # Increment the slot data index
             c_ind += 2621456  # Increment the checksum index
 
         # Do comparisons and recalculate checksums
         for ind, i in enumerate(slot_ls):
-            new_cs = hashlib.md5(i[0]).hexdigest()  # Recalculate the checksum for the data
-            cur_cs = binascii.hexlify(i[1]).decode("utf-8")  # Convert the current checksum to a string
+            new_cs = hashlib.md5(
+                i[0]
+            ).hexdigest()  # Recalculate the checksum for the data
+            cur_cs = binascii.hexlify(i[1]).decode(
+                "utf-8"
+            )  # Convert the current checksum to a string
 
-            if new_cs != cur_cs:  # Compare the recalculated and current checksums
-                slot_ls[ind][1] = binascii.unhexlify(new_cs)  # Update the checksum in the slot list
+            if (
+                new_cs != cur_cs
+            ):  # Compare the recalculated and current checksums
+                slot_ls[ind][1] = binascii.unhexlify(
+                    new_cs
+                )  # Update the checksum in the slot list
 
         slot_len = 2621439
         cs_len = 15
@@ -64,21 +83,36 @@ def recalc_checksum(file):
         c_ind = 0x00000300
         # Insert all checksums into data
         for i in slot_ls:
-            dat = dat[:s_ind] + i[0] + dat[s_ind + slot_len + 1 :]  # Update the data in the original data
-            dat = dat[:c_ind] + i[1] + dat[c_ind + cs_len + 1 :]  # Update the checksum in the original data
+            dat = (
+                dat[:s_ind] + i[0] + dat[s_ind + slot_len + 1 :]
+            )  # Update the data in the original data
+            dat = (
+                dat[:c_ind] + i[1] + dat[c_ind + cs_len + 1 :]
+            )  # Update the checksum in the original data
             s_ind += 2621456  # Increment the slot data index
             c_ind += 2621456  # Increment the checksum index
 
         # Manually doing General checksum
-        general = dat[0x019003B0 : 0x019603AF + 1]  # Extract the data for the general checksum
-        new_cs = hashlib.md5(general).hexdigest()  # Recalculate the general checksum
-        cur_cs = binascii.hexlify(dat[0x019003A0 : 0x019003AF + 1]).decode("utf-8")  # Convert the current general checksum to a string
+        general = dat[
+            0x019003B0 : 0x019603AF + 1
+        ]  # Extract the data for the general checksum
+        new_cs = hashlib.md5(
+            general
+        ).hexdigest()  # Recalculate the general checksum
+        cur_cs = binascii.hexlify(dat[0x019003A0 : 0x019003AF + 1]).decode(
+            "utf-8"
+        )  # Convert the current general checksum to a string
 
-        writeval = binascii.unhexlify(new_cs)  # Convert the recalculated general checksum to bytes
-        dat = dat[:0x019003A0] + writeval + dat[0x019003AF + 1 :]  # Update the general checksum in the original data
+        writeval = binascii.unhexlify(
+            new_cs
+        )  # Convert the recalculated general checksum to bytes
+        dat = (
+            dat[:0x019003A0] + writeval + dat[0x019003AF + 1 :]
+        )  # Update the general checksum in the original data
 
         with open(file, "wb") as fh1:
             fh1.write(dat)  # Write the updated data to the file
+
 
 def change_name(file, nw_nm, dest_slot):
     """
@@ -149,7 +183,7 @@ def change_name(file, nw_nm, dest_slot):
 
     name_locations = []
     ind1 = 0x1901D0E  # Start address of char names in header, 588 bytes apart
-    for i in range(10):
+    for _i in range(10):
         nm = dat1[ind1 : ind1 + 32]
         name_locations.append(nm)  # name in bytes
         ind1 += 588
@@ -243,7 +277,8 @@ def copy_save(src_file, dest_file, src_char, dest_char):
     else:
         src_slot = dat[
             0x00000310
-            + (src_char - 1) * slot_len : (0x0028030F + ((src_char - 1) * slot_len))
+            + (src_char - 1)
+            * slot_len : (0x0028030F + ((src_char - 1) * slot_len))
             + 1
         ]
 
@@ -272,7 +307,7 @@ def copy_save(src_file, dest_file, src_char, dest_char):
 
 def get_id(file):
     with open(file, "rb") as f:
-        dat = f.read()
+        f.read()
         f.seek(26215348)  # start address of steamID
         steam_id = f.read(8)  # Get steamID
     return l_endian(steam_id)
@@ -283,25 +318,26 @@ def get_names(file):
         with open(file, "rb") as fh:
             dat1 = fh.read()
 
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         return False
 
     # Start address of each character slot name
-    hex_locations = [   0x1901d0e,
-                        0x1901f5a,
-                        0x19021a6,
-                        0x19023f2,
-                        0x190263e,
-                        0x190288a,
-                        0x1902ad6,
-                        0x1902d22,
-                        0x1902f6e,
-                        0x19031ba
-                    ]
+    hex_locations = [
+        0x1901D0E,
+        0x1901F5A,
+        0x19021A6,
+        0x19023F2,
+        0x190263E,
+        0x190288A,
+        0x1902AD6,
+        0x1902D22,
+        0x1902F6E,
+        0x19031BA,
+    ]
     names = []
     for idx in hex_locations:
         try:
-            name = dat1[idx:idx+32].decode('utf-16')
+            name = dat1[idx : idx + 32].decode("utf-16")
 
         # If name fails to be decoded, the data is corrupt.
         # This commonly occurs with Seamless co-op mod.
@@ -311,17 +347,20 @@ def get_names(file):
 
         names.append(name)
 
+    for ind, i in enumerate(names):
 
-    for ind,i in enumerate(names):
-
-        if i == '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00':
+        if (
+            i
+            == "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        ):
             names[ind] = None
 
+    for ind, i in enumerate(names):
 
-    for ind,i in enumerate(names):
-
-        if not i is None:
-            names[ind] = i.split('\x00')[0] # name looks like this: 'wete\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+        if i is not None:
+            names[ind] = i.split("\x00")[
+                0
+            ]  # name looks like this: 'wete\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
 
     # Some corrupt data will produce names that are empty strings after the above split.
     # Before the split, it is just a bunch of random junk that cant be decoded in any way.
@@ -330,6 +369,7 @@ def get_names(file):
             names[ind] = None
 
     return names
+
 
 def random_str():
     """Generates random 16 character long name"""
@@ -353,7 +393,18 @@ def get_slot_ls(file):
         slot8 = dat[0x1180380 : 0x140037F + 1]
         slot9 = dat[0x1400390 : 0x168038F + 1]
         slot10 = dat[0x16803A0 : 0x190039F + 1]
-        return [slot1, slot2, slot3, slot4, slot5, slot6, slot7, slot8, slot9, slot10]
+        return [
+            slot1,
+            slot2,
+            slot3,
+            slot4,
+            slot5,
+            slot6,
+            slot7,
+            slot8,
+            slot9,
+            slot10,
+        ]
 
 
 def get_slot_slices(file):
@@ -432,7 +483,7 @@ def set_stats(file, char_num, stat_ls):
             lvl_ind = loc
 
             # Get the current level of the character
-            level = dest_char[lvl_ind : lvl_ind + 1]
+            dest_char[lvl_ind : lvl_ind + 1]
 
             # Calculate the new level by subtracting 79 from the sum of the new stats
             new_lv = sum(stat_ls) - 79
@@ -476,7 +527,6 @@ def set_stats(file, char_num, stat_ls):
     set_level(file, char_num, new_lvl_int)
 
 
-
 def get_stats(file, char_slot):
     """
     Retrieve the stats and corresponding indexes for a character from a file.
@@ -494,10 +544,12 @@ def get_stats(file, char_slot):
     slots = get_slot_ls(file)  # Get the character slots
 
     start_ind = 0
-    slot1 = slots[char_slot - 1]  # Get the slot data for the specified character slot
+    slot1 = slots[
+        char_slot - 1
+    ]  # Get the slot data for the specified character slot
     indexes = []  # List to store the indexes of the stats
 
-    for ind, b in enumerate(slot1):
+    for ind, _b in enumerate(slot1):
         if ind > 120000:
             return None
 
@@ -516,7 +568,10 @@ def get_stats(file, char_slot):
 
             # Check if the sum of stats equals the level plus 79,
             # and the level index matches the level
-            if sum(stats) == lv + 79 and l_endian(slot1[ind + 44 : ind + 46]) == lv:
+            if (
+                sum(stats) == lv + 79
+                and l_endian(slot1[ind + 44 : ind + 46]) == lv
+            ):
                 start_ind = ind
                 lvl_ind = ind + 44
                 break
@@ -525,7 +580,7 @@ def get_stats(file, char_slot):
             continue
 
     idx = ind
-    for i in range(8):
+    for _i in range(8):
         indexes.append(idx)
         idx += 4
 
@@ -535,7 +590,7 @@ def get_stats(file, char_slot):
     fp_inds = []  # List to store the indexes of the fp values
     y = start_ind - 32
 
-    for i in range(3):
+    for _i in range(3):
         fp.append(l_endian(slot1[y : y + 2]))
         fp_inds.append(y)
         y += 4
@@ -544,7 +599,7 @@ def get_stats(file, char_slot):
     hp_inds = []  # List to store the indexes of the hp values
     x = start_ind - 44
 
-    for i in range(3):
+    for _i in range(3):
         hp.append(l_endian(slot1[x : x + 2]))
         hp_inds.append(x)
         x += 4
@@ -553,7 +608,7 @@ def get_stats(file, char_slot):
     stam_inds = []  # List to store the indexes of the stamina values
     z = start_ind - 16
 
-    for i in range(3):
+    for _i in range(3):
         stam.append(l_endian(slot1[z : z + 2]))
         stam_inds.append(z)
         z += 4
@@ -569,6 +624,7 @@ def get_stats(file, char_slot):
         stam_inds,
         fp_inds,
     ]  # Return the list of stats, indexes, hp_inds, stam_inds, and fp_inds
+
 
 def set_level(file, char, lvl):
     """Sets levels in static header position by char names for in-game load save menu."""
@@ -602,12 +658,13 @@ def get_levels(file):
 
     ind = 0x1901D0E + 34
     lvls = []
-    for i in range(10):
+    for _i in range(10):
         l = dat[ind : ind + 2]
 
         lvls.append(l_endian(l))
         ind += 588
     return lvls
+
 
 def set_attributes(file, slot, lvls, cheat=False):
     """
@@ -640,7 +697,11 @@ def set_attributes(file, slot, lvls, cheat=False):
     vals = [hp_val, st_val, fp_val]
 
     if cheat:
-        vals = [60000, 60000, 60000]  # Max value that can be represented with a 2-byte unsigned integer
+        vals = [
+            60000,
+            60000,
+            60000,
+        ]  # Max value that can be represented with a 2-byte unsigned integer
 
     for ind_ls, nv in zip(all_inds, vals):
         char_slot = get_slot_ls(file)[slot - 1]
@@ -682,11 +743,11 @@ def additem(file, slot, itemid, quantity):
 
     if itemid is None:
         return None
-    itemidv1 = itemid & 0x00FFFFFF | (0xB0   << 24)
-    itemidv2 = itemid & 0x0000FFFF | (0x8080 << 16)
+    itemidv1 = itemid & 0x00FFFFFF | (0xB0 << 24)
+    itemid & 0x0000FFFF | (0x8080 << 16)
 
     with open(file, "rb") as f:
-        dat = f.read()
+        f.read()
 
         pos = -1
 
@@ -695,7 +756,9 @@ def additem(file, slot, itemid, quantity):
                 continue
             if i > 300000:
                 break
-            saveEntryInt32 = int.from_bytes([cs[i + 0], cs[i + 1], cs[i + 2], cs[i + 3]], byteorder='little')
+            saveEntryInt32 = int.from_bytes(
+                [cs[i + 0], cs[i + 1], cs[i + 2], cs[i + 3]], byteorder="little"
+            )
             if saveEntryInt32 == itemidv1:
                 pos = i + 4
                 break
@@ -718,64 +781,95 @@ def additem(file, slot, itemid, quantity):
         return True
 
 
+def search_itemid(f1, f2, f3, q1, q2, q3):
 
-def search_itemid(f1,f2,f3,q1,q2,q3):
-
-    with open(f1, 'rb') as f, open(f2, 'rb') as ff, open(f3, 'rb') as fff:
+    with open(f1, "rb") as f, open(f2, "rb") as ff, open(f3, "rb") as fff:
         dat = f.read()
         dat2 = ff.read()
         dat3 = fff.read()
-        c1 = dat[0x00000310:0x0028030F +1]
-        c2 = dat2[0x00000310:0x0028030F +1]
-        c3 = dat3[0x00000310:0x0028030F +1]
+        c1 = dat[0x00000310 : 0x0028030F + 1]
+        c2 = dat2[0x00000310 : 0x0028030F + 1]
+        c3 = dat3[0x00000310 : 0x0028030F + 1]
         index = []
         for ind, i in enumerate(c1):
             if ind < 30000:
                 continue
             # Full Matches
-            if ( l_endian(c1[ind:ind+1]) == int(q1) and l_endian(c2[ind:ind+1]) == int(q2) and l_endian(c3[ind:ind+1]) == int(q3)):
-                if ( l_endian(c1[ind - 2 : ind - 1]) == 0 and l_endian(c1[ind -1 : ind]) == 176 ) or ( l_endian(c1[ind - 2 : ind - 1]) == 128 and l_endian(c1[ind-1 : ind]) == 128):
+            if (
+                l_endian(c1[ind : ind + 1]) == int(q1)
+                and l_endian(c2[ind : ind + 1]) == int(q2)
+                and l_endian(c3[ind : ind + 1]) == int(q3)
+            ):
+                if (
+                    l_endian(c1[ind - 2 : ind - 1]) == 0
+                    and l_endian(c1[ind - 1 : ind]) == 176
+                ) or (
+                    l_endian(c1[ind - 2 : ind - 1]) == 128
+                    and l_endian(c1[ind - 1 : ind]) == 128
+                ):
                     index.append(ind)
-
-
 
         if len(index) == 1:
             idx = index[0]
             idx -= 6
-            return ["match", [l_endian(c1[idx + 2:idx + 3]), l_endian(c1[idx + 3:idx+4])]]
+            return [
+                "match",
+                [
+                    l_endian(c1[idx + 2 : idx + 3]),
+                    l_endian(c1[idx + 3 : idx + 4]),
+                ],
+            ]
 
         elif len(index) > 1 and len(index) < 500:
             return_dict = {}
             for i in index:
-                return_dict[i-6] = [l_endian(c1[i+2:i+3]), l_endian(c1[i+3:i+4])]
+                return_dict[i - 6] = [
+                    l_endian(c1[i + 2 : i + 3]),
+                    l_endian(c1[i + 3 : i + 4]),
+                ]
             return ["multi-match", return_dict]
 
         else:
             return None
 
 
-def set_play_time(file,slot,time):
+def set_play_time(file, slot, time):
     # time = [hr,min,sec]
     time = [int(i) for i in time]
     hr = time[0]
     min = time[1]
     sec = time[2]
-    seconds = sec + (min*60) + (hr*3600)
-    time1 = 0x1901d0e+38
-    time2 = 0x1901f5a+38
-    time3 = 0x19021a6+38
-    time4 = 0x19023f2+38
-    time5 = 0x190263e+38
-    time6 = 0x190288a+38
-    time7 = 0x1902ad6+38
-    time8 = 0x1902d22+38
-    time9 = 0x1902f6e+38
-    time10 = 0x19031ba+38
+    seconds = sec + (min * 60) + (hr * 3600)
+    time1 = 0x1901D0E + 38
+    time2 = 0x1901F5A + 38
+    time3 = 0x19021A6 + 38
+    time4 = 0x19023F2 + 38
+    time5 = 0x190263E + 38
+    time6 = 0x190288A + 38
+    time7 = 0x1902AD6 + 38
+    time8 = 0x1902D22 + 38
+    time9 = 0x1902F6E + 38
+    time10 = 0x19031BA + 38
 
-    times = [time1,time2,time3,time4,time5,time6,time7,time8,time9,time10]
-    with open(file,"rb") as f:
+    times = [
+        time1,
+        time2,
+        time3,
+        time4,
+        time5,
+        time6,
+        time7,
+        time8,
+        time9,
+        time10,
+    ]
+    with open(file, "rb") as f:
         dat = f.read()
-        ch = dat[:times[slot-1] ] + seconds.to_bytes(4, "little") + dat[times[slot-1] +4:]
+        ch = (
+            dat[: times[slot - 1]]
+            + seconds.to_bytes(4, "little")
+            + dat[times[slot - 1] + 4 :]
+        )
     with open(file, "wb") as ff:
         ff.write(ch)
         recalc_checksum(file)
@@ -786,13 +880,21 @@ def set_starting_class(file, slot, char_class):
     slices = get_slot_slices(file)
     s_start = slices[slot - 1][0]
     s_end = slices[slot - 1][1]
-    pos = 42165 # class flag is 42165 bytes from start of character block
-    classes = {"Vagabond":0, "Warrior":1, "Hero":2, "Bandit":3, "Astrologer":4,
-                "Prophet":5, "Confessor":6, "Samurai":7, "Prisoner":8, "Wretch":9
-                }
-#    with open(file, "rb") as f:
-#        dat = f.read()
-
+    pos = 42165  # class flag is 42165 bytes from start of character block
+    classes = {
+        "Vagabond": 0,
+        "Warrior": 1,
+        "Hero": 2,
+        "Bandit": 3,
+        "Astrologer": 4,
+        "Prophet": 5,
+        "Confessor": 6,
+        "Samurai": 7,
+        "Prisoner": 8,
+        "Wretch": 9,
+    }
+    #    with open(file, "rb") as f:
+    #        dat = f.read()
 
     with open(file, "wb") as fh:
         ch = (
@@ -809,20 +911,31 @@ def set_starting_class(file, slot, char_class):
     return True
 
 
-def find_inventory(file,slot,ids):
-    with open(file, 'rb') as f:
-        dat = f.read()
+def find_inventory(file, slot, ids):
+    with open(file, "rb") as f:
+        f.read()
 
-        c1 = get_slot_ls(file)[slot-1]
+        c1 = get_slot_ls(file)[slot - 1]
 
-
-        for ind, i in enumerate(c1):
+        for ind, _i in enumerate(c1):
             if ind < 30000:
                 continue
             # Full Matches
-            if l_endian(c1[ind:ind+1]) > 0 and l_endian(c1[ind:ind+1]) < 1000: # quantity
-                if ( l_endian(c1[ind - 2 : ind - 1]) == 0 and l_endian(c1[ind -1 : ind]) == 176 ) or ( l_endian(c1[ind - 2 : ind - 1]) == 128 and l_endian(c1[ind-1 : ind]) == 128):
-                    if l_endian(c1[ind-3:ind-2]) == ids[1] and l_endian(c1[ind-4:ind-3]) == ids[0]:
+            if (
+                l_endian(c1[ind : ind + 1]) > 0
+                and l_endian(c1[ind : ind + 1]) < 1000
+            ):  # quantity
+                if (
+                    l_endian(c1[ind - 2 : ind - 1]) == 0
+                    and l_endian(c1[ind - 1 : ind]) == 176
+                ) or (
+                    l_endian(c1[ind - 2 : ind - 1]) == 128
+                    and l_endian(c1[ind - 1 : ind]) == 128
+                ):
+                    if (
+                        l_endian(c1[ind - 3 : ind - 2]) == ids[1]
+                        and l_endian(c1[ind - 4 : ind - 3]) == ids[0]
+                    ):
                         index = ind
                         break
 
@@ -830,35 +943,60 @@ def find_inventory(file,slot,ids):
 
 
 def get_inventory(file, slot):
-    items = dict([(v,k) for k,v in itemdict.items()])
+    items = dict([(v, k) for k, v in itemdict.items()])
     with open(file, "rb") as f:
-        dat = f.read()
-        ind = find_inventory(file, slot, [106,0]) # Search for Tarnished Wizened Finger ( you get it at beginning of game)
-        ind -= 4 # go to the uid point
-        c1 = get_slot_ls(file)[slot-1]
+        f.read()
+        ind = find_inventory(
+            file, slot, [106, 0]
+        )  # Search for Tarnished Wizened Finger ( you get it at beginning of game)
+        ind -= 4  # go to the uid point
+        c1 = get_slot_ls(file)[slot - 1]
         ls = []
-        ind -= (12 * 1024) # inventory item entry is 12 bytes long, so decrement index to beginning of inv
+        ind -= (
+            12 * 1024
+        )  # inventory item entry is 12 bytes long, so decrement index to beginning of inv
 
-        for i in range(2048*2):
+        for i in range(2048 * 2):
 
-            itemid = c1[ind] | (c1[ind + 1] << 8) | (c1[ind + 2] << 16) | (0x40 << 24)
+            itemid = (
+                c1[ind]
+                | (c1[ind + 1] << 8)
+                | (c1[ind + 2] << 16)
+                | (0x40 << 24)
+            )
             try:
                 name = items[itemid]
             except KeyError:
                 name = "?"
 
-            ls.append({
-                          "name": name,
-                          "item_id": [l_endian(c1[ind:ind+1]), l_endian(c1[ind+1:ind+2])],
-                          "uid": [l_endian(c1[ind+2:ind+3]),  l_endian(c1[ind+3:ind+4])],
-                          "quantity": l_endian(c1[ind+4:ind+5]),
-                          "pad1": [l_endian(c1[ind+5:ind+6]),l_endian(c1[ind+6:ind+7]),l_endian(c1[ind+7:ind+8])],
-                          "iter": l_endian(c1[ind+8:ind+9]),
-                          "pad2":[ l_endian(c1[ind+9:ind+10]), l_endian(c1[ind+10:ind+11]),l_endian(c1[ind+11:ind+12])],
-                          "index": ind
-                          })
-            ind+= 12
-        sorted_ls = sorted(ls, key=lambda d: d['name'])
+            ls.append(
+                {
+                    "name": name,
+                    "item_id": [
+                        l_endian(c1[ind : ind + 1]),
+                        l_endian(c1[ind + 1 : ind + 2]),
+                    ],
+                    "uid": [
+                        l_endian(c1[ind + 2 : ind + 3]),
+                        l_endian(c1[ind + 3 : ind + 4]),
+                    ],
+                    "quantity": l_endian(c1[ind + 4 : ind + 5]),
+                    "pad1": [
+                        l_endian(c1[ind + 5 : ind + 6]),
+                        l_endian(c1[ind + 6 : ind + 7]),
+                        l_endian(c1[ind + 7 : ind + 8]),
+                    ],
+                    "iter": l_endian(c1[ind + 8 : ind + 9]),
+                    "pad2": [
+                        l_endian(c1[ind + 9 : ind + 10]),
+                        l_endian(c1[ind + 10 : ind + 11]),
+                        l_endian(c1[ind + 11 : ind + 12]),
+                    ],
+                    "index": ind,
+                }
+            )
+            ind += 12
+        sorted_ls = sorted(ls, key=lambda d: d["name"])
     finished_ls = []
 
     for i in sorted_ls:
@@ -869,16 +1007,22 @@ def get_inventory(file, slot):
     return finished_ls
 
 
-def overwrite_item(file,slot, item_dict_entry, newid):
-    #entry = {'name': 'Smithing Stone :[8]', 'item_id': [123, 39], 'uid': [0, 176], 'quantity': 63, 'pad1': [0, 0, 0], 'iter': 103, 'pad2': [58, 0, 0], 'index': 63987}
+def overwrite_item(file, slot, item_dict_entry, newid):
+    # entry = {'name': 'Smithing Stone :[8]', 'item_id': [123, 39], 'uid': [0, 176], 'quantity': 63, 'pad1': [0, 0, 0], 'iter': 103, 'pad2': [58, 0, 0], 'index': 63987}
 
     pos = item_dict_entry["index"]
 
-    cs = get_slot_ls(file)[slot-1]
+    cs = get_slot_ls(file)[slot - 1]
     slices = get_slot_slices(file)
     s_start = slices[slot - 1][0]
     s_end = slices[slot - 1][1]
-    ch = ( s_start + cs[:pos] + newid.to_bytes(4, "little")[:3] + cs[pos + 3 :] + s_end )
+    ch = (
+        s_start
+        + cs[:pos]
+        + newid.to_bytes(4, "little")[:3]
+        + cs[pos + 3 :]
+        + s_end
+    )
     with open(file, "wb") as fh:
         fh.write(ch)
 
@@ -887,15 +1031,12 @@ def overwrite_item(file,slot, item_dict_entry, newid):
 
 def fix_stats(file, char_slot, stat_list):
 
-
     slots = get_slot_ls(file)
     slot_slices = get_slot_slices(file)
 
-    start_ind = 0
     slot1 = slots[char_slot - 1]
-    indexes = []
     lvl_ind = 0
-    for ind, b in enumerate(slot1):
+    for ind, _b in enumerate(slot1):
         if ind > 90000:
             break
 
@@ -908,13 +1049,11 @@ def fix_stats(file, char_slot, stat_list):
             l_endian(slot1[ind + 20 : ind + 21]),
             l_endian(slot1[ind + 24 : ind + 25]),
             l_endian(slot1[ind + 28 : ind + 29]),
-            ]
-
+        ]
 
         if stats == stat_list:
             lvl_ind = ind + 44
             break
-
 
     if lvl_ind == 0:
         return False
@@ -931,33 +1070,31 @@ def fix_stats(file, char_slot, stat_list):
 
     with open(file, "wb") as fh:
         fh.write(data)
-    set_level(file, char_slot, new_lv) # Set level runs recalc_checksum
+    set_level(file, char_slot, new_lv)  # Set level runs recalc_checksum
     return True
 
 
 def set_runes(file, char_slot, old_quantity, new_quantity):
 
-
     slots = get_slot_ls(file)
     slot_slices = get_slot_slices(file)
-    slot1 = slots[char_slot -1]
+    slot1 = slots[char_slot - 1]
     index = 0
-    for ind, b in enumerate(slot1):
+    for ind, _b in enumerate(slot1):
         if ind > 80000:
             break
         x = l_endian(slot1[ind : ind + 4])
         if x == old_quantity:
             index = ind
 
-
     if index == 0:
         return False
     data = (
-    slot_slices[char_slot - 1][0]
-    + slot1[:index]
-    + new_quantity.to_bytes(4,"little")
-    + slot1[index + 4 :]
-    + slot_slices[char_slot - 1][1]
+        slot_slices[char_slot - 1][0]
+        + slot1[:index]
+        + new_quantity.to_bytes(4, "little")
+        + slot1[index + 4 :]
+        + slot_slices[char_slot - 1][1]
     )
 
     with open(file, "wb") as fh:

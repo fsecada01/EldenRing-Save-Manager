@@ -1,9 +1,8 @@
 import os
 import platform
-import sys
-import subprocess
 import shutil
-import re
+import subprocess
+import sys
 
 # main variables, directories and settings
 config_path = "./data/config.json"
@@ -23,8 +22,6 @@ bk_p = (-140, 20)  # Background image position
 is_windows = any(platform.win32_ver()) or hasattr(sys, "getwindowsversion")
 
 
-
-
 def open_folder_standard_exporer(path):
     """Note: os.startfile is only avaiable on Win platform"""
     if platform.system() == "Windows":
@@ -35,7 +32,9 @@ def open_folder_standard_exporer(path):
 
 def open_textfile_in_editor(path):
     if is_windows:
-        subprocess.run(f"notepad {path}", shell=True, capture_output=True, text=True)
+        subprocess.run(
+            f"notepad {path}", shell=True, capture_output=True, text=True
+        )
     else:
         subprocess.Popen(["xdg-open", path])
 

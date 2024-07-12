@@ -175,7 +175,7 @@ def archive_file(file, name, metadata, names):
 
 
 def unarchive_file(file):
-    lzc = lzma.LZMACompressor()
+    lzma.LZMACompressor()
     name = file.split("/")[-2]
     path = f"./data/recovered/{name}/"
 
@@ -306,7 +306,8 @@ def update_app(on_start=False):
         return
     if ver > v_num:
         popup(
-            text=f" Release v{str(ver)} Available\nClose the program and run the Updater.",
+            text=f" Release v{str(ver)} Available\nClose the program and run "
+            f"the Updater.",
             buttons=True,
             functions=(root.quit, do_nothing),
             button_names=("Exit Now", "Cancel"),
@@ -330,8 +331,9 @@ def help_me():
 
 
 def load_listbox(listbox: Listbox):
-    """LOAD current save files and insert them into listbox. This is Used
-    to load the listbox on startup and also after deleting an item from the listbox to refresh the entries.
+    """LOAD current save files and insert them into listbox. This is Used to
+    load the listbox on startup and also after deleting an item from the
+    listbox to refresh the entries.
     """
     if os.path.isdir(save_dir) is True:
         for entry in os.listdir(save_dir):
@@ -562,7 +564,7 @@ def rename_slot():
 
     pop_up_win = Toplevel(root)
     pop_up_win.title("Rename")
-    # popupwin.geometry("200x70")
+    # pop_up_win.geometry("200x70")
     lab = Label(pop_up_win, text="Enter new Name:")
     lab.grid(row=0, column=0)
     ent = Entry(pop_up_win, borderwidth=5)
