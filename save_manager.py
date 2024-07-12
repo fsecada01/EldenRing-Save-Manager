@@ -428,7 +428,7 @@ def initialize_main_gui(root_element: Tk) -> Tk:
             list(
                 map(
                     lambda menu_dict: menu_obj.add_command(
-                        label=menu_dict["label"],
+                        label=menu_dict["label"].split()[0].Title(),
                         command=menu_dict["command"],
                     ),
                     sep_dict_list,
