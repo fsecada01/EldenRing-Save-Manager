@@ -14,8 +14,10 @@ from types import FunctionType
 
 import requests
 
-import hexedit
-from os_layer import (
+from src import hexedit
+from src.config import config, gamedir
+from src.consts import BASE_DIR, cr_save_ent, lb, root
+from src.os_layer import (
     copy_file,
     copy_folder,
     delete_folder,
@@ -24,7 +26,6 @@ from os_layer import (
     save_dir,
     v_num,
 )
-from src.consts import config, cr_save_ent, gamedir, lb, root
 
 
 def popup(
@@ -647,20 +648,21 @@ def rename_char(file, nw_nm, dest_slot):
 
 def changelog(run=False):
     info = ""
-    with open("../data/changelog.txt", "r") as f:
+    change_log = BASE_DIR / "data" / "changelog.txt"
+    with change_log.open() as f:
         dat = f.readlines()
         for line in dat:
             info = info + f"\n\u2022 {line}\n"
     if run:
-        popup(info, title="Changelog")
+        popup(info, title="Changelog", root_element=root)
         return
     if config.post_update:
-        popup(info, title="Changelog")
+        popup(info, title="Changelog", root_element=root)
 
 
 def force_quit():
     comm = force_close_process("eldenring.exe")
-    popup(text="Are you sure?", buttons=True, command=comm)
+    popup(text="Are you sure?", buttons=True, command=comm, root_element=root)
 
 
 def create_notes(name: str, dir_name: str):

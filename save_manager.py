@@ -1,4 +1,3 @@
-import json
 import re
 import webbrowser
 from tkinter import Button, Label, Menu, Misc, PhotoImage, Tk
@@ -8,7 +7,8 @@ from typing import Any
 from PIL import Image, ImageTk
 
 from src import itemdata
-from src.consts import config, cr_save_ent, gamedir, lb, root
+from src.config import config, gamedir
+from src.consts import cr_save_ent, lb, root
 from src.menu import (
     change_default_steamid_menu,
     char_manager_menu,
@@ -27,13 +27,11 @@ from src.os_layer import (
     background_img,
     backupdir,
     bk_p,
-    config_path,
     copy_folder,
     icon_file,
     is_windows,
     open_textfile_in_editor,
     os,
-    post_update_file,
     save_dir,
     version,
     video_url,
@@ -67,72 +65,6 @@ from src.utils import (
 # set always the working dir to the correct folder for unix env
 if not is_windows:
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
-
-class Config:
-
-    def __init__(self):
-        if not os.path.exists(post_update_file):
-            with open(post_update_file, "w") as ff:
-                ff.write("True")
-
-        with open(post_update_file, "r") as f:
-            x = f.read()
-            self.post_update = True if x == "True" else False
-
-        if os.path.exists(config_path):
-            with open(config_path, "r") as f:
-                dat = json.load(f)
-
-                if (
-                    "custom_ids" not in dat.keys()
-                ):  # custom_ids was an addition to v1.5, must create for
-                    # current users with existing config.json from v1.5
-                    dat["custom_ids"] = {}
-                    self.cfg = dat
-
-                    with open(config_path, "w") as file:
-                        json.dump(self.cfg, file)
-
-        if not os.path.exists(config_path):  # Build dictionary for first time
-            dat = {
-                "post_update": True,
-                "gamedir": "",
-                "steamid": "",
-                "seamless-coop": False,
-                "custom_ids": {},
-            }
-
-            self.cfg = dat
-            with open(config_path, "w") as f:
-                json.dump(self.cfg, f)
-        else:
-            with open(config_path, "r") as f:
-                js = json.load(f)
-                self.cfg = js
-
-    def set_update(self, val):
-        self.post_update = val
-        with open(post_update_file, "w") as f:
-            f.write("True" if val else "False")
-
-    def set(self, k, v):
-        self.cfg[k] = v
-        with open(config_path, "w") as f:
-            json.dump(self.cfg, f)
-
-    def add_to(self, k, v):
-        self.cfg[k].update(v)
-        with open(config_path, "w") as f:
-            json.dump(self.cfg, f)
-
-    def delete_custom_id(self, k):
-        self.cfg["custom_ids"].pop(k)
-        with open(config_path, "w") as f:
-            json.dump(self.cfg, f)
-
-
-# ////// MENUS //////
 
 
 # //// LEGACY FUNCTIONS (NO LONGER USED) ////
@@ -240,7 +172,6 @@ def initialize_main_gui(root_element: Tk) -> Tk:
     Returns: Tk
 
     """
-    global bolded, rt_click_menu
     root_element.resizable(width=False, height=False)
     root_element.title("{} {}".format(app_title, version))
     root_element.geometry("830x561")
@@ -392,7 +323,6 @@ def initialize_main_gui(root_element: Tk) -> Tk:
         )
 
         return {
-            "main_menu": main_menu_obj,
             "file_menu": file_menu_obj,
             "edit_menu": edit_menu_obj,
             "tool_menu": tool_menu_obj,
@@ -407,7 +337,7 @@ def initialize_main_gui(root_element: Tk) -> Tk:
         separator: bool = False,
         sep_ind: int | None = None,
     ):
-        menu_obj = Menu(master=master_menu, tearoff=0, name=menu_name)
+        menu_obj = Menu(master=master_menu, tearoff=0, name=menu_name.lower())
         sep_dict_list = []
         if separator and sep_ind:
             sep_dict_list.extend(menu_dict_list[sep_ind:])
@@ -416,7 +346,7 @@ def initialize_main_gui(root_element: Tk) -> Tk:
         list(
             map(
                 lambda menu_dict: menu_obj.add_command(
-                    label=menu_dict["label"].split()[0].Title(),
+                    label=menu_dict["label"].split()[0].title(),
                     command=menu_dict["command"],
                 ),
                 menu_dict_list,
@@ -428,7 +358,7 @@ def initialize_main_gui(root_element: Tk) -> Tk:
             list(
                 map(
                     lambda menu_dict: menu_obj.add_command(
-                        label=menu_dict["label"].split()[0].Title(),
+                        label=menu_dict["label"].split()[0].title(),
                         command=menu_dict["command"],
                     ),
                     sep_dict_list,
@@ -456,12 +386,19 @@ def initialize_main_gui(root_element: Tk) -> Tk:
 
     menus = _generate_menus(main_menu_obj=menubar)
 
-    list(map(lambda menu_dict: menubar.add_cascade(**menu_dict), menus))
+    list(
+        map(
+            lambda k: menubar.add_cascade(
+                menu=menus[k], label=k.split("_")[0].title()
+            ),
+            menus.keys(),
+        )
+    )
 
     create_save_label(done_img, root_element)
 
     bolded = font_style.Font(weight="bold")  # will use the default font
-    lb.config(font=bolded)
+    config.cfg["font"] = bolded
     lb.grid(row=0, column=3, padx=(110, 0), pady=(30, 0))
 
     # -----------------------------------------------------------

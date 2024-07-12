@@ -1,9 +1,8 @@
+from pathlib import Path
 from tkinter import Entry, Listbox, Tk
 
-from save_manager import Config
+BASE_DIR = (Path("__name__") / "..").resolve()
 
-config = Config()
-gamedir = str(config.cfg["gamedir"])
 root = Tk()
 cr_save_ent = Entry(root, borderwidth=5)
 lb = Listbox(root, borderwidth=3, width=25, height=16)

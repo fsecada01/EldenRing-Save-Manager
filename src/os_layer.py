@@ -3,21 +3,23 @@ import platform
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 # main variables, directories and settings
-config_path = "../data/config.json"
-save_dir = "./data/save-files/"
+_main_dir = Path(os.environ.get("BASE_DIRECTORY"))
+config_path = (_main_dir / "data/config.json").resolve()
+save_dir = (_main_dir / "data/save-files/").resolve()
 app_title = "Elden Ring Save Manager"
-backupdir = "./data/backup/"
-update_dir = "../data/updates/"
-temp_dir = "../data/temp/"
-post_update_file = "../data/post.update"
+backupdir = (_main_dir / "data/backup/").resolve()
+update_dir = (_main_dir / "data/updates/").resolve()
+temp_dir = (_main_dir / "data/temp/").resolve()
+post_update_file = (_main_dir / "data/post.update").resolve()
 version = "v1.73"
 v_num = 1.73  # Used for checking version for update
 video_url = "https://youtu.be/LQxmFuq3dfg"
 custom_search_tutorial_url = "https://youtu.be/li-ZiMXBmRk"
-background_img = "./data/background.png"
-icon_file = "../data/icon.ico"
+background_img = (_main_dir / "data/background.png").resolve()
+icon_file = (_main_dir / "data/icon.ico").resolve()
 bk_p = (-140, 20)  # Background image position
 is_windows = any(platform.win32_ver()) or hasattr(sys, "getwindowsversion")
 

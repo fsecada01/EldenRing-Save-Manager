@@ -25,9 +25,9 @@ from tkinter import (
 from tkinter import filedialog as fd
 from tkinter import font as FNT
 
-from save_manager import bolded
 from src import hexedit, itemdata
-from src.consts import config, lb, root
+from src.config import config
+from src.consts import lb, root
 from src.os_layer import (
     copy_file,
     custom_search_tutorial_url,
@@ -50,6 +50,8 @@ from src.utils import (
     run_command,
     unarchive_file,
 )
+
+bolded = FNT.Font(weight="bold")  # will use the default font
 
 
 def get_char_names(list_box, drop, v):
