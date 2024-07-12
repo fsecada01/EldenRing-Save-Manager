@@ -3,3 +3,8 @@ data/archive/
 data/config.json
 data/post.update
 data/save-files/
+
+labs
+.venv
+bin
+.idea
