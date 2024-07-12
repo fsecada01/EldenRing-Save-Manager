@@ -185,6 +185,7 @@ item_dict = {
         "Lost Ashes of War": 0x40002756,
         "Iris of Grace": 0x401E8CC8,
         "Iris of Occultation": 0x401E8CD2,
+        "Black Syrup": 0x401EA3D3,
         "Heart of Bayle": 0x401EA3CB,
         "Larval Tear2": 0x401EA3E1,
         "Hefty Cracked Pot": 0x401EA99C,
@@ -437,12 +438,13 @@ item_dict = {
 class Items:
     def __init__(self):
         self.db = item_dict
-        if os.path.exists("./data/config.json"):
-            with open("./data/config.json", "r") as f:
+        if os.path.exists("../data/config.json"):
+            with open("../data/config.json", "r") as f:
                 js = json.load(f)
                 self.db["Custom Items"] = js[
                     "custom_ids"
-                ]  # ADDS custom IDS from config to itemdb merging with hard coded items
+                ]  # ADDS custom IDS from config to itemdb merging with hard
+                # coded items
         self.categories = list(self.db.keys())  # Populate 1st dropdown menu
 
     def get_item_ls(self, cat):

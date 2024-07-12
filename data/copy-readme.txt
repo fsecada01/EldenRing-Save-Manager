@@ -8,11 +8,11 @@
   If you already have a save file with duplicate names, copy the character to a save file that doesn't.
 
 
-- If you only have one character in save, you can only overwite that character. 
+- If you only have one character in save, you can only overwite that character.
   Simply go ingame and create a new character and then you can overwrite it with whatever you want.
 
 
-- After copying a character, when you go to load your character in the game, the level/location/playtime will not have updated. 
+- After copying a character, when you go to load your character in the game, the level/location/playtime will not have updated.
   Once you load into the character for the first time, it will update and be correct the next time you go to load.
 
 

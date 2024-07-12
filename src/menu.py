@@ -26,7 +26,6 @@ from tkinter import filedialog as fd
 from tkinter import font as FNT
 
 from save_manager import bolded
-
 from src import hexedit, itemdata
 from src.consts import config, lb, root
 from src.os_layer import (
@@ -148,18 +147,18 @@ def char_manager_menu():
         rmv_none = [i for i in dest_names if i is not None]
         if max(Counter(rmv_none).values()) > 1:
             pop_up(
-                """Sorry, Can't handle writing to a DESTINATION file with 
-                duplicate character names!\n\n You can work around this 
-                limitation by using the save file with duplicate character 
-                names as the SOURCE file:\n 1. Select the save file with 
-                duplicate character names as the SOURCE file.\n 2. Select a 
-                different save file as the DESTINATION (can be anything).\n 
-                3. Copy the first character with duplicate names to 
-                DESTINATION file\n 4. Rename the character in the DESTINATION 
-                file to something different.\n 5. Copy the second character 
-                with duplicate names to the DESTINATION file.\n\n Why do you 
-                have to do this? Because character names vary greatly in 
-                frequency and location\n within the save file, so this tool 
+                """Sorry, Can't handle writing to a DESTINATION file with
+                duplicate character names!\n\n You can work around this
+                limitation by using the save file with duplicate character
+                names as the SOURCE file:\n 1. Select the save file with
+                duplicate character names as the SOURCE file.\n 2. Select a
+                different save file as the DESTINATION (can be anything).\n
+                3. Copy the first character with duplicate names to
+                DESTINATION file\n 4. Rename the character in the DESTINATION
+                file to something different.\n 5. Copy the second character
+                with duplicate names to the DESTINATION file.\n\n Why do you
+                have to do this? Because character names vary greatly in
+                frequency and location\n within the save file, so this tool
                 must replace ALL occurences of a given name.""",
                 bold=False,
             )
@@ -1727,13 +1726,13 @@ def recovery_menu():
     help_menu.add_command(
         label="Readme",
         command=lambda: pop_up(
-            """\u2022 This tool recovers save files in case of user error.\n 
-            \u2022 Every time you modify/create/delete a save file, before 
-            the action is performed, a copy is created, compressed and stored 
-            in data/archive.\n \u2022 The original file size of 28mb is 
-            compressed to 2mb. To recover a file, simply select a file and 
-            click Restore.\n \u2022 Restored save files are in the 
-            data/recovered directory.\n \u2022 Right-click on a save in the 
+            """\u2022 This tool recovers save files in case of user error.\n
+            \u2022 Every time you modify/create/delete a save file, before
+            the action is performed, a copy is created, compressed and stored
+            in data/archive.\n \u2022 The original file size of 28mb is
+            compressed to 2mb. To recover a file, simply select a file and
+            click Restore.\n \u2022 Restored save files are in the
+            data/recovered directory.\n \u2022 Right-click on a save in the
             listbox to get additional file info."""
         ),
     )

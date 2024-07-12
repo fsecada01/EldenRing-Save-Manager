@@ -1,4 +1,4 @@
-itemdict = {
+all_items_dict = {
     "<name unavailable>01": 0x4000000C,
     "<name unavailable>02": 0x4000000D,
     "<name unavailable>03": 0x4000000E,

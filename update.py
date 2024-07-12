@@ -5,7 +5,7 @@ import zipfile
 
 import requests
 
-from os_layer import copy_folder, delete_folder
+from src.os_layer import copy_folder, delete_folder
 
 version_url = (
     "https://github.com/Ariescyn/EldenRing-Save-Manager/releases/latest"

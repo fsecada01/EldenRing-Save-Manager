@@ -4,10 +4,10 @@ import hashlib
 import random
 
 import stat_progression
-from allitems_dict import itemdict
+from src.allitems_dict import all_items_dict
 
 
-def l_endian(val):
+def l_endian(val: bytes):
     """
     Takes bytes and returns little endian int32/64.
 
@@ -30,12 +30,12 @@ def l_endian(val):
     )  # Convert hex string to integer using base 16 (hexadecimal)
 
 
-def recalc_checksum(file):
+def recalc_checksum(file_name: str):
     """
     Recalculates and updates checksum values in a binary file.
 
     Args:
-        file (str): The path to the binary file.
+        file_name (str): The path to the binary file.
 
     Returns:
         None.
@@ -43,7 +43,7 @@ def recalc_checksum(file):
     Raises:
         None.
     """
-    with open(file, "rb") as fh:
+    with open(file_name, "rb") as fh:
         dat = fh.read()
         slot_ls = []
         slot_len = 2621439
@@ -103,23 +103,23 @@ def recalc_checksum(file):
             "utf-8"
         )  # Convert the current general checksum to a string
 
-        writeval = binascii.unhexlify(
+        write_val = binascii.unhexlify(
             new_cs
         )  # Convert the recalculated general checksum to bytes
         dat = (
-            dat[:0x019003A0] + writeval + dat[0x019003AF + 1 :]
+            dat[:0x019003A0] + write_val + dat[0x019003AF + 1 :]
         )  # Update the general checksum in the original data
 
-        with open(file, "wb") as fh1:
+        with open(file_name, "wb") as fh1:
             fh1.write(dat)  # Write the updated data to the file
 
 
-def change_name(file, nw_nm, dest_slot):
+def change_name(file_name: str, nw_nm: str, dest_slot: int):
     """
     Changes the character name in a binary file at a specified slot.
 
     Args:
-        file (str): The path to the binary file.
+        file_name (str): The path to the binary file.
         nw_nm (str): The new name to be set.
         dest_slot (int): The slot number where the name should be changed.
 
@@ -130,12 +130,12 @@ def change_name(file, nw_nm, dest_slot):
         None.
     """
 
-    def replacer(file, old_name, name):
+    def replacer(file_name: str, old_name: bytes, name: bytes):
         """
         Scans for all occurrences of old_name and replaces them with name in the file.
 
         Args:
-            file (str): The path to the binary file.
+            file_name (str): The path to the binary file.
             old_name (bytes): The original name in bytes to be replaced.
             name (bytes): The new name in bytes to replace the old name.
 
@@ -145,7 +145,7 @@ def change_name(file, nw_nm, dest_slot):
         Raises:
             None.
         """
-        with open(file, "rb") as fh:
+        with open(file_name, "rb") as fh:
             dat1 = fh.read()
             id_loc = []
             index = 0
@@ -174,11 +174,11 @@ def change_name(file, nw_nm, dest_slot):
                 c = fh.read()
                 data = a + b + c
 
-                with open(file, "wb") as f:
+                with open(file_name, "wb") as f:
                     f.write(data)
-        recalc_checksum(file)
+        recalc_checksum(file_name)
 
-    with open(file, "rb") as fh:
+    with open(file_name, "rb") as fh:
         dat1 = fh.read()
 
     name_locations = []
@@ -188,7 +188,7 @@ def change_name(file, nw_nm, dest_slot):
         name_locations.append(nm)  # name in bytes
         ind1 += 588
 
-    x = replacer(file, name_locations[dest_slot - 1], nw_nm)
+    x = replacer(file_name, name_locations[dest_slot - 1], nw_nm)
     return x
 
 
@@ -294,7 +294,8 @@ def copy_save(src_file, dest_file, src_char, dest_char):
         slot_s = dat1[: 0x00000310 + ((dest_char - 1) * slot_len)]
         slot_e = dat1[0x0028030F + ((dest_char - 1) * slot_len) + 1 :]
 
-    # Combine the character slot from the source save file with the destination save file
+    # Combine the character slot from the source save file with the
+    # destination save file
     dat1 = slot_s + src_slot + slot_e
 
     # Write the modified contents back to the destination save file
@@ -313,9 +314,9 @@ def get_id(file):
     return l_endian(steam_id)
 
 
-def get_names(file):
+def get_names(file_name: str):
     try:
-        with open(file, "rb") as fh:
+        with open(file_name, "rb") as fh:
             dat1 = fh.read()
 
     except FileNotFoundError:
@@ -350,8 +351,8 @@ def get_names(file):
     for ind, i in enumerate(names):
 
         if (
-            i
-            == "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+            i == "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+            "\x00"
         ):
             names[ind] = None
 
@@ -360,10 +361,12 @@ def get_names(file):
         if i is not None:
             names[ind] = i.split("\x00")[
                 0
-            ]  # name looks like this: 'wete\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+            ]  # name looks like this: 'wete\x00\x00\x00\x00\x00\x00\x00\x00
+            # \x00\x00\x00\x00'
 
-    # Some corrupt data will produce names that are empty strings after the above split.
-    # Before the split, it is just a bunch of random junk that cant be decoded in any way.
+    # Some corrupt data will produce names that are empty strings after the
+    # above split. Before the split, it is just a bunch of random junk that
+    # cant be decoded in any way.
     for ind, name in enumerate(names):
         if name == "":
             names[ind] = None
@@ -485,14 +488,16 @@ def set_stats(file, char_num, stat_ls):
             # Get the current level of the character
             dest_char[lvl_ind : lvl_ind + 1]
 
-            # Calculate the new level by subtracting 79 from the sum of the new stats
+            # Calculate the new level by subtracting 79 from the sum of the
+            # new stats
             new_lv = sum(stat_ls) - 79
             new_lvl_int = new_lv
 
             # Convert the new level to a 2-byte little-endian representation
             new_lv = new_lv.to_bytes(2, "little")
 
-            # Construct the new data by replacing the old level with the new level
+            # Construct the new data by replacing the old level with the new
+            # level
             data = (
                 slot_slices[char_num - 1][0]
                 + dest_char[:lvl_ind]
@@ -507,13 +512,14 @@ def set_stats(file, char_num, stat_ls):
             break
 
         # Convert the new stat value to a 1-byte little-endian representation
-        writeval = stat_ls[index].to_bytes(1, "little")
+        write_val = stat_ls[index].to_bytes(1, "little")
 
-        # Construct the new data by replacing the old stat value with the new stat value
+        # Construct the new data by replacing the old stat value with the new
+        # stat value
         data = (
             slot_slices[char_num - 1][0]
             + dest_char[:loc]
-            + writeval
+            + write_val
             + dest_char[loc + 1 :]
             + slot_slices[char_num - 1][1]
         )
@@ -627,7 +633,8 @@ def get_stats(file, char_slot):
 
 
 def set_level(file, char, lvl):
-    """Sets levels in static header position by char names for in-game load save menu."""
+    """Sets levels in static header position by char names for in-game load
+    save menu."""
     locs = [
         26221872,
         26222460,
@@ -744,10 +751,15 @@ def additem(file, slot, itemid, quantity):
     if itemid is None:
         return None
     itemidv1 = itemid & 0x00FFFFFF | (0xB0 << 24)
-    itemid & 0x0000FFFF | (0x8080 << 16)
+    itemidv2 = itemid & 0x0000FFFF | (0x8080 << 16)
 
     with open(file, "rb") as f:
-        f.read()
+        dat = f.read()
+
+        decoded_str = dat.decode("utf8", "ignore")
+
+        with open("../data/save_decoded.txt", "w+", encoding="utf-8") as file:
+            file.write(decoded_str)
 
         pos = -1
 
@@ -762,8 +774,15 @@ def additem(file, slot, itemid, quantity):
             if saveEntryInt32 == itemidv1:
                 pos = i + 4
                 break
+            elif saveEntryInt32 == itemidv2:
+                pos = i + 4
+                break
 
         if pos < 0:
+            print(
+                f"POS Variable returning value less than zero. See here: "
+                f"{pos}"
+            )
             return None
 
         with open(file, "wb") as fh:
@@ -782,7 +801,6 @@ def additem(file, slot, itemid, quantity):
 
 
 def search_itemid(f1, f2, f3, q1, q2, q3):
-
     with open(f1, "rb") as f, open(f2, "rb") as ff, open(f3, "rb") as fff:
         dat = f.read()
         dat2 = ff.read()
@@ -921,10 +939,7 @@ def find_inventory(file, slot, ids):
             if ind < 30000:
                 continue
             # Full Matches
-            if (
-                l_endian(c1[ind : ind + 1]) > 0
-                and l_endian(c1[ind : ind + 1]) < 1000
-            ):  # quantity
+            if 0 < l_endian(c1[ind : ind + 1]) < 1000:  # quantity
                 if (
                     l_endian(c1[ind - 2 : ind - 1]) == 0
                     and l_endian(c1[ind - 1 : ind]) == 176
@@ -943,32 +958,28 @@ def find_inventory(file, slot, ids):
 
 
 def get_inventory(file, slot):
-    items = dict([(v, k) for k, v in itemdict.items()])
     with open(file, "rb") as f:
         f.read()
         ind = find_inventory(
             file, slot, [106, 0]
-        )  # Search for Tarnished Wizened Finger ( you get it at beginning of game)
+        )  # Search for Tarnished Wizened Finger (you get it at beginning of
+        # game)  # noqa
         ind -= 4  # go to the uid point
         c1 = get_slot_ls(file)[slot - 1]
         ls = []
         ind -= (
             12 * 1024
-        )  # inventory item entry is 12 bytes long, so decrement index to beginning of inv
+        )  # inventory item entry is 12 bytes long, so decrement index to
+        # beginning of inv
 
         for i in range(2048 * 2):
-
             itemid = (
                 c1[ind]
                 | (c1[ind + 1] << 8)
                 | (c1[ind + 2] << 16)
                 | (0x40 << 24)
             )
-            try:
-                name = items[itemid]
-            except KeyError:
-                name = "?"
-
+            name = all_items_dict.get(itemid, "?")
             ls.append(
                 {
                     "name": name,
@@ -1008,7 +1019,9 @@ def get_inventory(file, slot):
 
 
 def overwrite_item(file, slot, item_dict_entry, newid):
-    # entry = {'name': 'Smithing Stone :[8]', 'item_id': [123, 39], 'uid': [0, 176], 'quantity': 63, 'pad1': [0, 0, 0], 'iter': 103, 'pad2': [58, 0, 0], 'index': 63987}
+    # entry = {'name': 'Smithing Stone :[8]', 'item_id': [123, 39], 'uid': [
+    # 0, 176], 'quantity': 63, 'pad1': [0, 0, 0], 'iter': 103, 'pad2': [58,
+    # 0, 0], 'index': 63987}
 
     pos = item_dict_entry["index"]
 
@@ -1030,12 +1043,12 @@ def overwrite_item(file, slot, item_dict_entry, newid):
 
 
 def fix_stats(file, char_slot, stat_list):
-
     slots = get_slot_ls(file)
     slot_slices = get_slot_slices(file)
 
     slot1 = slots[char_slot - 1]
     lvl_ind = 0
+    stats = stat_list
     for ind, _b in enumerate(slot1):
         if ind > 90000:
             break
@@ -1075,7 +1088,6 @@ def fix_stats(file, char_slot, stat_list):
 
 
 def set_runes(file, char_slot, old_quantity, new_quantity):
-
     slots = get_slot_ls(file)
     slot_slices = get_slot_slices(file)
     slot1 = slots[char_slot - 1]
