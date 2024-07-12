@@ -8,3 +8,4 @@ labs
 .venv
 bin
 .idea
+data/save_decoded.txt
