@@ -24,7 +24,7 @@ from os_layer import (
     save_dir,
     v_num,
 )
-from src.consts import config, cr_save_ent, lb, root
+from src.consts import config, cr_save_ent, gamedir, lb, root
 
 
 def popup(
@@ -301,7 +301,7 @@ def update_app(on_start=False):
         )
         r = requests.get(version_url)  # Get redirect url
         ver = float(r.url.split("/")[-1].split("v")[1])
-    except:
+    except Exception:
         popup("Can not check for updates. Check your internet connection.")
         return
     if ver > v_num:
@@ -452,15 +452,12 @@ def load_save_from_lb():
         return
 
     def command_func():
-        return wrapper(copy_folder(src_dir, str(config.cfg["gamedir"])))
+        return wrapper(copy_folder(src_dir, gamedir))
 
     popup(
         "Are you sure?",
         buttons=True,
-        functions=(
-            command_func,
-            do_nothing,
-        ),
+        functions=(command_func, do_nothing),  # noqa
         root_element=root,
     )
 

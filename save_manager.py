@@ -1,13 +1,14 @@
 import json
 import re
 import webbrowser
-from tkinter import *
-from tkinter import font as FNT
+from tkinter import Button, Label, Menu, Misc, PhotoImage, Tk
+from tkinter import font as font_style
+from typing import Any
 
 from PIL import Image, ImageTk
 
 from src import itemdata
-from src.consts import config, cr_save_ent, lb, root
+from src.consts import config, cr_save_ent, gamedir, lb, root
 from src.menu import (
     change_default_steamid_menu,
     char_manager_menu,
@@ -21,7 +22,22 @@ from src.menu import (
     set_steam_id_menu,
     stat_editor_menu,
 )
-from src.os_layer import *
+from src.os_layer import (
+    app_title,
+    background_img,
+    backupdir,
+    bk_p,
+    config_path,
+    copy_folder,
+    icon_file,
+    is_windows,
+    open_textfile_in_editor,
+    os,
+    post_update_file,
+    save_dir,
+    version,
+    video_url,
+)
 from src.utils import (
     archive_file,
     change_default_dir,
@@ -75,8 +91,8 @@ class Config:
                     dat["custom_ids"] = {}
                     self.cfg = dat
 
-                    with open(config_path, "w") as f:
-                        json.dump(self.cfg, f)
+                    with open(config_path, "w") as file:
+                        json.dump(self.cfg, file)
 
         if not os.path.exists(config_path):  # Build dictionary for first time
             dat = {
@@ -126,7 +142,7 @@ def quick_restore(user_steam_id=None):
     """Copies the selected save file in temp to selected listbox item"""
     lst_box_choice = fetch_listbox_entry(lb)[0]
     if len(lst_box_choice) < 1:
-        popup("No listbox item selected.")
+        popup("No listbox item selected.", root_element=root)
         return
     src = f"./data/temp/{lst_box_choice}"
     dest = f"{save_dir}{lst_box_choice}"
@@ -139,21 +155,21 @@ def quick_restore(user_steam_id=None):
     )
     x = run_command(lambda: copy_folder(src, dest))
     if x[0] != "error":
-        popup("Successfully restored backup.")
+        popup("Successfully restored backup.", root_element=root)
 
 
 def quick_backup():
     """Creates a backup of selected listbox item to temp folder"""
     lst_box_choice = fetch_listbox_entry(lb)[0]
     if len(lst_box_choice) < 1:
-        popup("No listbox item selected.")
+        popup("No listbox item selected.", root_element=root)
         return
 
     src = f"{save_dir}{lst_box_choice}"
     dest = f"./data/temp/{lst_box_choice}"
     x = run_command(lambda: copy_folder(src, dest))
     if x[0] != "error":
-        popup("Successfully created backup.")
+        popup("Successfully created backup.", root_element=root)
 
 
 def save_backup():
@@ -168,7 +184,7 @@ def save_backup():
     if cmd_out2[0] == "error":
         return
     else:
-        popup("Backup saved successfully")
+        popup("Backup saved successfully", root_element=root)
 
 
 def load_backup():
@@ -178,23 +194,29 @@ def load_backup():
         run_command(lambda: os.makedirs(backupdir))
 
     if len(re.findall(r"\d{17}", str(os.listdir(backupdir)))) < 1:
-        popup("No backup found")
+        popup("No backup found", root_element=root)
 
     else:
-        popup("Overwrite existing save?", command=comm, buttons=True)
+        popup(
+            "Overwrite existing save?",
+            command=comm,
+            buttons=True,
+            root_element=root,
+        )
 
 
 def about():
     popup(
         text="Author: Lance Fitz\nEmail: scyntacks94@gmail.com\nGithub: "
-        "github.com/Ariescyn"
+        "github.com/Ariescyn",
+        root_element=root,
     )
 
 
 def open_notes():
     name = fetch_listbox_entry(lb)[0]
     if len(name) < 1:
-        popup("No listbox item selected.")
+        popup("No listbox item selected.", root_element=root)
         return
 
     def command():
@@ -206,165 +228,317 @@ def open_notes():
 # ///// MAIN GUI CONTENT /////
 
 
-root.resizable(width=False, height=False)
-root.title("{} {}".format(app_title, version))
+def initialize_main_gui(root_element: Tk) -> Tk:
+    """
+    Creates the main GUI window and its contents. This is intended to be
+    called by the main function and completes initialization at call time.
+    This is wrapped in a function for sanity purposes.
 
-root.geometry("830x561")
-try:
-    root.iconbitmap(icon_file)
-except Exception:
-    print("Unix doesn't support .ico - setting the background as app icon")
-    root.iconphoto(True, PhotoImage(background_img))
+    Args:
+        root_element: Tk
 
-# FANCY STUFF
-bg_img = ImageTk.PhotoImage(image=Image.open(background_img))
-background = Label(root, image=bg_img)
+    Returns: Tk
 
-background.place(x=bk_p[0], y=bk_p[1], relwidth=1, relheight=1)
-
-# Images used on button widgets
-done_img = ImageTk.PhotoImage(
-    image=Image.open("./data/assets/but_done.png").resize((50, 30))
-)
-load_save_img = ImageTk.PhotoImage(
-    image=Image.open("./data/assets/but_load_save.png").resize((85, 40))
-)
-delete_save_img = ImageTk.PhotoImage(
-    image=Image.open("./data/assets/but_delete_save.png").resize((85, 40))
-)
-
-menubar = Menu(root)
-root.config(menu=menubar)
-
-# FILE MENU
-filemenu = Menu(menubar, tearoff=0)
-# filemenu.add_command(label="Save Backup", command=save_backup)
-# filemenu.add_command(label="Restore Backup", command=load_backup)
-filemenu.add_command(label="Import Save File", command=import_save_menu)
-filemenu.add_command(label="seamless Co-op Mode", command=seamless_coop_menu)
-filemenu.add_command(label="Force quit EldenRing", command=force_quit)
-filemenu.add_command(
-    label="Open Default Game Save Directory", command=open_game_save_dir
-)
-filemenu.add_separator()
-filemenu.add_command(
-    label="Donate",
-    command=lambda: webbrowser.open_new_tab(
-        "https://www.paypal.com/donate/?hosted_button_id=H2X24U55NUJJW"
-    ),
-)
-filemenu.add_command(label="Exit", command=root.quit)
-menubar.add_cascade(label="File", menu=filemenu)
-
-# EDIT MENU
-editmenu = Menu(menubar, tearoff=0)
-editmenu.add_command(
-    label="Change Default Directory", command=change_default_dir
-)
-# editmenu.add_command(label="Reset To Default Directory", command=reset_default_dir)
-editmenu.add_command(
-    label="Change Default SteamID", command=change_default_steamid_menu
-)
-editmenu.add_command(label="Check for updates", command=update_app)
-menubar.add_cascade(label="Edit", menu=editmenu)
-
-# TOOLS MENU
-toolsmenu = Menu(menubar, tearoff=0)
-toolsmenu.add_command(label="Character Manager", command=char_manager_menu)
-toolsmenu.add_command(label="Stat Editor", command=stat_editor_menu)
-toolsmenu.add_command(label="Inventory Editor", command=inventory_editor_menu)
-toolsmenu.add_command(label="File Recovery", command=recovery_menu)
-menubar.add_cascade(label="Tools", menu=toolsmenu)
-
-# CHEAT MENU
-cheatmenu = Menu(menubar, tearoff=0)
-cheatmenu.add_command(label="God Mode", command=god_mode_menu)
-cheatmenu.add_command(label="Set Runes", command=set_runes_menu)
-menubar.add_cascade(label="Cheats", menu=cheatmenu)
-
-# HELP MENU
-helpmenu = Menu(menubar, tearoff=0)
-# helpmenu.add_command(label="Readme", command=help_me)
-# helpmenu.add_command(label="About", command=about)
-helpmenu.add_command(
-    label="Watch Video", command=lambda: webbrowser.open_new_tab(video_url)
-)
-helpmenu.add_command(label="Changelog", command=lambda: changelog(run=True))
-helpmenu.add_command(
-    label="Report Bug",
-    command=lambda: popup(
-        "Report bugs on Nexus, GitHub or email me at scyntacks94@gmail.com"
-    ),
-)
-menubar.add_cascade(label="Help", menu=helpmenu)
-
-create_save_lab = Label(root, text="Create Save:", font=("Impact", 15))
-create_save_lab.config(fg="grey")
-create_save_lab.grid(row=0, column=0, padx=(80, 10), pady=(0, 260))
-
-cr_save_ent.grid(row=0, column=1, pady=(0, 260))
-
-but_go = Button(
-    root, text="Done", image=done_img, borderwidth=0, command=create_save
-)
-but_go.grid(row=0, column=2, padx=(10, 0), pady=(0, 260))
-
-bolded = FNT.Font(weight="bold")  # will use the default font
-lb.config(font=bolded)
-lb.grid(row=0, column=3, padx=(110, 0), pady=(30, 0))
-
-
-# -----------------------------------------------------------
-# right click popup menu in listbox
-
-
-def do_popup(event):
+    """
+    global bolded, rt_click_menu
+    root_element.resizable(width=False, height=False)
+    root_element.title("{} {}".format(app_title, version))
+    root_element.geometry("830x561")
     try:
-        rt_click_menu.tk_popup(
-            event.x_root, event.y_root
-        )  # Grab x,y position of mouse cursor
-    finally:
-        rt_click_menu.grab_release()
+        root_element.iconbitmap(icon_file)
+    except Exception:
+        print("Unix doesn't support .ico - setting the background as app icon")
+        root_element.iconphoto(True, PhotoImage(background_img))
+
+    def _generate_menus(main_menu_obj: Menu) -> dict[str, Menu]:
+        """
+        Meta function to generate all menus and submenus. Assigns menu
+        objects to the root Tk object.
+        Args:
+            main_menu_obj: Menu
+
+        Returns: dict[str, Menu]
+
+        """
+        file_menu_dict_list = [
+            {
+                "label": "Import Save File",
+                "command": import_save_menu,
+            },
+            {
+                "label": "Seamless Co-op Mode",
+                "command": seamless_coop_menu,
+            },
+            {
+                "label": "Force Quit Elden Ring",
+                "command": force_quit,
+            },
+            {
+                "label": "Open Default Game Save Directory",
+                "command": open_game_save_dir,
+            },
+            {
+                "label": "Load Backup",
+                "command": lambda: load_backup(),
+            },
+            {
+                "label": "Donate",
+                "command": lambda: webbrowser.open_new_tab(
+                    "https://www.paypal.com/donate/?hosted_button_id"
+                    "=H2X24U55NUJJW"
+                ),
+            },
+            {
+                "label": "Exit",
+                "command": lambda: exit(),
+            },
+        ]
+
+        file_menu_obj = _get_menu(
+            master_menu=main_menu_obj,
+            menu_dict_list=file_menu_dict_list,
+            menu_name="File",
+            separator=True,
+            sep_ind=-2,
+        )
+
+        edit_menu_dict_list = [
+            {
+                "label": "Change Default Directory",
+                "command": change_default_dir,
+            },
+            {
+                "label": "Change Default SteamID",
+                "command": change_default_steamid_menu,
+            },
+            {
+                "label": "Check for updates",
+                "command": update_app,
+            },
+        ]
+
+        edit_menu_obj = _get_menu(
+            master_menu=main_menu_obj,
+            menu_dict_list=edit_menu_dict_list,
+            menu_name="Edit",
+        )
+
+        tool_menu_dict_list = [
+            {
+                "label": "Character Manager",
+                "command": char_manager_menu,
+            },
+            {
+                "label": "Stat Editor",
+                "command": stat_editor_menu,
+            },
+            {
+                "label": "Inventory Editor",
+                "command": inventory_editor_menu,
+            },
+            {
+                "label": "File Recovery",
+                "command": recovery_menu,
+            },
+        ]
+
+        tool_menu_obj = _get_menu(
+            master_menu=main_menu_obj,
+            menu_dict_list=tool_menu_dict_list,
+            menu_name="Tools",
+        )
+
+        cheat_menu_dict_list = [
+            {
+                "label": "God Mode",
+                "command": god_mode_menu,
+            },
+            {
+                "label": "Set Runes",
+                "command": set_runes_menu,
+            },
+        ]
+
+        cheat_menu_obj = _get_menu(
+            master_menu=main_menu_obj,
+            menu_dict_list=cheat_menu_dict_list,
+            menu_name="Cheats",
+        )
+
+        help_menu_dict_list = [
+            {
+                "label": "Watch Video",
+                "command": lambda: webbrowser.open_new_tab(video_url),
+            },
+            {
+                "label": "Changelog",
+                "command": lambda: changelog(run=True),
+            },
+            {
+                "label": "Report a Bug",
+                "command": lambda: popup(
+                    "Please report any bugs you find on the GitHub page.\n"
+                    "https://github.com/EldenRingTeam/EldenRingSaveEditor"
+                    "/issues",
+                    root_element=root_element,
+                ),
+            },
+        ]
+
+        help_menu_obj = _get_menu(
+            master_menu=main_menu_obj,
+            menu_dict_list=help_menu_dict_list,
+            menu_name="Help",
+        )
+
+        return {
+            "main_menu": main_menu_obj,
+            "file_menu": file_menu_obj,
+            "edit_menu": edit_menu_obj,
+            "tool_menu": tool_menu_obj,
+            "cheat_menu": cheat_menu_obj,
+            "help_menu": help_menu_obj,
+        }
+
+    def _get_menu(
+        master_menu: Misc,
+        menu_dict_list: list[dict[str, Any]],
+        menu_name: str | None = None,
+        separator: bool = False,
+        sep_ind: int | None = None,
+    ):
+        menu_obj = Menu(master=master_menu, tearoff=0, name=menu_name)
+        sep_dict_list = []
+        if separator and sep_ind:
+            sep_dict_list.extend(menu_dict_list[sep_ind:])
+            menu_dict_list = menu_dict_list[:sep_ind]
+
+        list(
+            map(
+                lambda menu_dict: menu_obj.add_command(
+                    label=menu_dict["label"],
+                    command=menu_dict["command"],
+                ),
+                menu_dict_list,
+            )
+        )
+
+        if separator:
+            menu_obj.add_separator()
+            list(
+                map(
+                    lambda menu_dict: menu_obj.add_command(
+                        label=menu_dict["label"],
+                        command=menu_dict["command"],
+                    ),
+                    sep_dict_list,
+                )
+            )
+
+        return menu_obj
+
+    # FANCY STUFF
+    bg_img = ImageTk.PhotoImage(image=Image.open(background_img))
+    background = Label(root_element, image=bg_img)  # noqa
+    background.place(x=bk_p[0], y=bk_p[1], relwidth=1, relheight=1)
+    # Images used on button widgets
+    done_img = ImageTk.PhotoImage(
+        image=Image.open("./data/assets/but_done.png").resize((50, 30))
+    )
+    load_save_img = ImageTk.PhotoImage(
+        image=Image.open("./data/assets/but_load_save.png").resize((85, 40))
+    )
+    delete_save_img = ImageTk.PhotoImage(
+        image=Image.open("./data/assets/but_delete_save.png").resize((85, 40))
+    )
+
+    menubar = Menu(root_element)
+
+    menus = _generate_menus(main_menu_obj=menubar)
+
+    list(map(lambda menu_dict: menubar.add_cascade(**menu_dict), menus))
+
+    create_save_label(done_img, root_element)
+
+    bolded = font_style.Font(weight="bold")  # will use the default font
+    lb.config(font=bolded)
+    lb.grid(row=0, column=3, padx=(110, 0), pady=(30, 0))
+
+    # -----------------------------------------------------------
+    # right click popup menu in listbox
+    do_popup = get_right_click_menu()
+    lb.bind(
+        "<Button-3>", do_popup
+    )  # button 3 is right click, so when right-clicking inside listbox,
+    # do_popup
+    # is executed at cursor position
+    load_listbox(lb)  # populates listbox with saves on runtime
+    but_load_save = Button(
+        root_element,
+        text="Load Save",
+        image=load_save_img,  # noqa
+        borderwidth=0,
+        command=load_save_from_lb,
+    )
+    but_delete_save = Button(
+        root_element,
+        text="Delete Save",
+        image=delete_save_img,  # noqa
+        borderwidth=0,
+        command=delete_save,
+    )
+    but_load_save.grid(row=3, column=3, pady=(12, 0))
+    but_delete_save.grid(row=3, column=3, padx=(215, 0), pady=(12, 0))
+
+    return root_element
 
 
-rt_click_menu = Menu(lb, tearoff=0)
-# rt_click_menu.add_command(label="Edit Notes", command=open_notes)
-rt_click_menu.add_command(label="Rename Save", command=rename_slot)
-rt_click_menu.add_command(
-    label="Rename Characters", command=rename_characters_menu
-)
-rt_click_menu.add_command(label="Update", command=update_slot)
-# rt_click_menu.add_command(label="Quick Backup", command=quick_backup)
-# rt_click_menu.add_command(label="Quick Restore", command=quick_restore)
-# rt_click_menu.add_command(label="Set Starting Classes",
-# command=set_starting_class_menu) #FULLY FUNCTIONAL, but it doesn't work
-# because game restores playtime to original values after loading..... :(
-rt_click_menu.add_command(label="Change SteamID", command=set_steam_id_menu)
-rt_click_menu.add_command(label="Open File Location", command=open_folder)
-lb.bind(
-    "<Button-3>", do_popup
-)  # button 3 is right click, so when right-clicking inside listbox, do_popup
-# is executed at cursor position
+def get_right_click_menu():
+    def do_popup(event):
+        try:
+            rt_click_menu.tk_popup(
+                event.x_root, event.y_root
+            )  # Grab x,y position of mouse cursor
+        finally:
+            rt_click_menu.grab_release()
 
-load_listbox(lb)  # populates listbox with saves on runtime
+    rt_click_menu = Menu(lb, tearoff=0)
+    # rt_click_menu.add_command(label="Edit Notes", command=open_notes)
+    rt_click_menu.add_command(label="Rename Save", command=rename_slot)
+    rt_click_menu.add_command(
+        label="Rename Characters", command=rename_characters_menu
+    )
+    rt_click_menu.add_command(label="Update", command=update_slot)
+    # rt_click_menu.add_command(label="Quick Backup", command=quick_backup)
+    # rt_click_menu.add_command(label="Quick Restore", command=quick_restore)
+    # rt_click_menu.add_command(label="Set Starting Classes",
+    # command=set_starting_class_menu) #FULLY FUNCTIONAL, but it doesn't work
+    # because game restores playtime to original values after loading..... :(
+    rt_click_menu.add_command(label="Change SteamID", command=set_steam_id_menu)
+    rt_click_menu.add_command(label="Open File Location", command=open_folder)
 
-but_load_save = Button(
-    root,
-    text="Load Save",
-    image=load_save_img,
-    borderwidth=0,
-    command=load_save_from_lb,
-)
-but_delete_save = Button(
-    root,
-    text="Delete Save",
-    image=delete_save_img,
-    borderwidth=0,
-    command=delete_save,
-)
+    return rt_click_menu
 
-but_load_save.grid(row=3, column=3, pady=(12, 0))
-but_delete_save.grid(row=3, column=3, padx=(215, 0), pady=(12, 0))
+
+def create_save_label(done_img: PhotoImage, root_element: Tk):
+    create_save_lab = Label(
+        root_element, text="Create Save:", font=("Impact", 15)
+    )
+    create_save_lab.config(fg="grey")
+    create_save_lab.grid(row=0, column=0, padx=(80, 10), pady=(0, 260))
+    cr_save_ent.grid(row=0, column=1, pady=(0, 260))
+    but_go = Button(
+        root_element,
+        text="Done",
+        image=done_img,  # noqa
+        borderwidth=0,
+        command=create_save,
+    )
+    but_go.grid(row=0, column=2, padx=(10, 0), pady=(0, 260))
+    return but_go
+
+
+root = initialize_main_gui(root_element=root)
 
 # INITIALIZE APP
 itemdb = itemdata.Items()
@@ -374,8 +548,10 @@ if not os.path.exists("./data/save-files"):
 update_app(True)
 
 if len(config.cfg["steamid"]) != 17:
-    popup("SteamID not set. Click edit > Change default SteamID to set.")
-
+    popup(
+        "SteamID not set. Click edit > Change default SteamID to set.",
+        root_element=root,
+    )
 
 if __name__ == "__main__":
     changelog()

@@ -217,7 +217,8 @@ def char_manager_menu():
             vars1.set("Character")
             vars2.set("Character")
             pop_up(
-                txt="Duplicate names not supported\nGenerated a new random name",
+                txt="Duplicate names not supported\nGenerated a new random "
+                "name",
                 bold=False,
             )
             return
@@ -814,7 +815,7 @@ def inventory_editor_menu():
             "ACTION: Add inventory items",
             get_char_names_from_file(dest_file),
         )
-        variable_to_set = hexedit.additem(dest_file, char_ind, itemid, qty)
+        variable_to_set = hexedit.add_item(dest_file, char_ind, itemid, qty)
         if variable_to_set is None:
             pop_up("Failed to edit item count")
         else:
@@ -861,7 +862,7 @@ def inventory_editor_menu():
         )
         failed = []
         for itemname, itemid in category_items.items():
-            x = hexedit.additem(dest_file, char_ind, itemid, qty)
+            x = hexedit.add_item(dest_file, char_ind, itemid, qty)
             if x is None:
                 failed.append(itemname)
 
@@ -1372,7 +1373,7 @@ def inventory_editor_menu():
 
             try:
                 inventory_items = hexedit.get_inventory(dest_file, char_ind)
-            except:
+            except Exception:
                 popup(
                     "Unable to load inventory! Do you have Tarnished's "
                     "Wizened Finger?",

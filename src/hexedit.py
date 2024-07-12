@@ -52,7 +52,7 @@ def recalc_checksum(file_name: str):
         c_ind = 0x00000300
 
         # Build nested list containing data and checksum related to each slot
-        for i in range(10):
+        for _ in range(10):
             d = dat[s_ind : s_ind + slot_len + 1]  # Extract data for the slot
             c = dat[c_ind : c_ind + cs_len + 1]  # Extract checksum for the slot
             slot_ls.append(
@@ -62,11 +62,11 @@ def recalc_checksum(file_name: str):
             c_ind += 2621456  # Increment the checksum index
 
         # Do comparisons and recalculate checksums
-        for ind, i in enumerate(slot_ls):
+        for ind, x in enumerate(slot_ls):
             new_cs = hashlib.md5(
-                i[0]
+                x[0]
             ).hexdigest()  # Recalculate the checksum for the data
-            cur_cs = binascii.hexlify(i[1]).decode(
+            cur_cs = binascii.hexlify(x[1]).decode(
                 "utf-8"
             )  # Convert the current checksum to a string
 
@@ -82,12 +82,12 @@ def recalc_checksum(file_name: str):
         s_ind = 0x00000310
         c_ind = 0x00000300
         # Insert all checksums into data
-        for i in slot_ls:
+        for x in slot_ls:
             dat = (
-                dat[:s_ind] + i[0] + dat[s_ind + slot_len + 1 :]
+                dat[:s_ind] + x[0] + dat[s_ind + slot_len + 1 :]
             )  # Update the data in the original data
             dat = (
-                dat[:c_ind] + i[1] + dat[c_ind + cs_len + 1 :]
+                dat[:c_ind] + x[1] + dat[c_ind + cs_len + 1 :]
             )  # Update the checksum in the original data
             s_ind += 2621456  # Increment the slot data index
             c_ind += 2621456  # Increment the checksum index
@@ -123,21 +123,22 @@ def change_name(file_name: str, nw_nm: str, dest_slot: int):
         nw_nm (str): The new name to be set.
         dest_slot (int): The slot number where the name should be changed.
 
-    Returns:
-        str: Returns "error" if the operation encounters an issue, otherwise None.
+    Returns: str: Returns "error" if the operation encounters an issue,
+    otherwise None.
 
     Raises:
         None.
     """
 
-    def replacer(file_name: str, old_name: bytes, name: bytes):
+    def replacer(file_name: str, old_name: bytes, name: str):
         """
-        Scans for all occurrences of old_name and replaces them with name in the file.
+        Scans for all occurrences of old_name and replaces them with name in
+        the file.
 
         Args:
             file_name (str): The path to the binary file.
             old_name (bytes): The original name in bytes to be replaced.
-            name (bytes): The new name in bytes to replace the old name.
+            name (str): The new name to replace the old name.
 
         Returns:
             None.
@@ -163,8 +164,8 @@ def change_name(file_name: str, nw_nm: str, dest_slot: int):
             nw_nm_bytes = name.encode("utf-16")[2:]
 
             num = 32 - len(nw_nm_bytes)
-            for i in range(num):
-                nw_nm_bytes = nw_nm_bytes + b"\x00"
+            for _ in range(num):
+                nw_nm_bytes += b"\x00"
 
             for i in id_loc:
                 fh.seek(0)
@@ -192,16 +193,16 @@ def change_name(file_name: str, nw_nm: str, dest_slot: int):
     return x
 
 
-def replace_id(file, newid):
+def replace_id(file, new_id: int):
     """
     Replaces the steamID in a binary file with a new ID.
 
     Args:
         file (str): The path to the binary file.
-        newid (int): The new steamID to be set.
+        new_id (int): The new steamID to be set.
 
-    Returns:
-        bool: Returns False if the steamID length is not 17 digits, otherwise None.
+    Returns: bool: Returns False if the steamID length is not 17 digits,
+    otherwise None.
 
     Raises:
         None.
@@ -230,7 +231,7 @@ def replace_id(file, newid):
         for i in id_loc:
             f.seek(0)
             a = f.read(i)
-            b = newid.to_bytes(8, "little")
+            b = new_id.to_bytes(8, "little")
             f.seek(i + 8)
             c = f.read()
             data = a + b + c
@@ -241,7 +242,7 @@ def replace_id(file, newid):
     recalc_checksum(file)
 
 
-def copy_save(src_file, dest_file, src_char, dest_char):
+def copy_save(src_file: str, dest_file: str, src_char: int, dest_char: int):
     """
     Copy characters between save files.
 
@@ -541,8 +542,8 @@ def get_stats(file, char_slot):
         file (str): The file to read from.
         char_slot (int): The character slot number.
 
-    Returns:
-        list: A list containing the stats, indexes, hp_inds, stam_inds, and fp_inds.
+    Returns: list: A list containing the stats, indexes, hp_inds, stam_inds,
+    and fp_in's.
     """
 
     lvls = get_levels(file)  # Get the levels of all characters
@@ -582,7 +583,7 @@ def get_stats(file, char_slot):
                 lvl_ind = ind + 44
                 break
 
-        except:
+        except Exception:
             continue
 
     idx = ind
@@ -666,22 +667,22 @@ def get_levels(file):
     ind = 0x1901D0E + 34
     lvls = []
     for _i in range(10):
-        l = dat[ind : ind + 2]
+        level = dat[ind : ind + 2]
 
-        lvls.append(l_endian(l))
+        lvls.append(l_endian(level))
         ind += 588
     return lvls
 
 
-def set_attributes(file, slot, lvls, cheat=False):
+def set_attributes(file: str, slot: int, lvls: list, cheat: bool = False):
     """
     Sets the attributes (HP, FP, ST) of a character in a given slot.
 
-    Parameters:
-        file (str): The file path of the save file.
+    Parameters: file (str): The file path of the save file.
         slot (int): The character slot number.
         lvls (list): A list of attribute levels [hp_level, fp_level, st_level].
-        cheat (bool, optional): Flag indicating whether to set attributes to maximum value. Defaults to False.
+        cheat (bool, optional): Flag indicating whether to set attributes to
+            maximum value. Defaults to False.
 
     Returns:
         None
@@ -729,14 +730,15 @@ def set_attributes(file, slot, lvls, cheat=False):
     recalc_checksum(file)
 
 
-def additem(file, slot, itemid, quantity):
+def add_item(file: str, slot: int, itemid: str | int, quantity: int):
     """
-    Adds an item with the specified item IDs and quantity to a character's inventory in a given slot.
+    Adds an item with the specified item IDs and quantity to a character's
+    inventory in a given slot.
 
     Parameters:
+        itemid:
         file (str): The file path of the save file.
         slot (int): The character slot number.
-        itemids (list): A list of item IDs [item_id_1, item_id_2].
         quantity (int): The quantity of the item to add.
 
     Returns:
@@ -758,8 +760,10 @@ def additem(file, slot, itemid, quantity):
 
         decoded_str = dat.decode("utf8", "ignore")
 
-        with open("../data/save_decoded.txt", "w+", encoding="utf-8") as file:
-            file.write(decoded_str)
+        with open(
+            "../data/save_decoded.txt", "w+", encoding="utf-8"
+        ) as file_obj:
+            file_obj.write(decoded_str)
 
         pos = -1
 
@@ -785,7 +789,7 @@ def additem(file, slot, itemid, quantity):
             )
             return None
 
-        with open(file, "wb") as fh:
+        with open(file, "wb+") as fh:
             ch = (
                 s_start
                 + cs[:pos]
@@ -809,7 +813,7 @@ def search_itemid(f1, f2, f3, q1, q2, q3):
         c2 = dat2[0x00000310 : 0x0028030F + 1]
         c3 = dat3[0x00000310 : 0x0028030F + 1]
         index = []
-        for ind, i in enumerate(c1):
+        for ind, _i in enumerate(c1):
             if ind < 30000:
                 continue
             # Full Matches
@@ -838,7 +842,7 @@ def search_itemid(f1, f2, f3, q1, q2, q3):
                 ],
             ]
 
-        elif len(index) > 1 and len(index) < 500:
+        elif 1 < len(index) < 500:
             return_dict = {}
             for i in index:
                 return_dict[i - 6] = [
@@ -855,9 +859,9 @@ def set_play_time(file, slot, time):
     # time = [hr,min,sec]
     time = [int(i) for i in time]
     hr = time[0]
-    min = time[1]
+    min_val = time[1]
     sec = time[2]
-    seconds = sec + (min * 60) + (hr * 3600)
+    seconds = sec + (min_val * 60) + (hr * 3600)
     time1 = 0x1901D0E + 38
     time2 = 0x1901F5A + 38
     time3 = 0x19021A6 + 38
@@ -972,7 +976,7 @@ def get_inventory(file, slot):
         )  # inventory item entry is 12 bytes long, so decrement index to
         # beginning of inv
 
-        for i in range(2048 * 2):
+        for _i in range(2048 * 2):
             itemid = (
                 c1[ind]
                 | (c1[ind + 1] << 8)
