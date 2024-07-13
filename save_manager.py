@@ -67,6 +67,15 @@ if not is_windows:
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
+def do_popup(event, right_click_menu: Menu):
+    try:
+        right_click_menu.tk_popup(
+            event.x_root, event.y_root
+        )  # Grab x,y position of mouse cursor
+    finally:
+        right_click_menu.grab_release()
+
+
 # //// LEGACY FUNCTIONS (NO LONGER USED) ////
 
 
@@ -177,7 +186,8 @@ def initialize_main_gui(root_element: Tk) -> Tk:
     root_element.geometry("830x561")
     try:
         root_element.iconbitmap(icon_file)
-    except Exception:
+    except Exception as e:
+        print(type(e), e, e.args)
         print("Unix doesn't support .ico - setting the background as app icon")
         root_element.iconphoto(True, PhotoImage(background_img))
 
@@ -328,6 +338,7 @@ def initialize_main_gui(root_element: Tk) -> Tk:
             "tool_menu": tool_menu_obj,
             "cheat_menu": cheat_menu_obj,
             "help_menu": help_menu_obj,
+            # "right-click_menu": rt_click_menu_obj,
         }
 
     def _get_menu(
@@ -383,6 +394,7 @@ def initialize_main_gui(root_element: Tk) -> Tk:
     )
 
     menubar = Menu(root_element)
+    root_element.config(menu=menubar)
 
     menus = _generate_menus(main_menu_obj=menubar)
 
@@ -395,15 +407,48 @@ def initialize_main_gui(root_element: Tk) -> Tk:
         )
     )
 
+    rt_click_menu_dict_list = [
+        {
+            "label": "Rename Save",
+            "command": rename_slot,
+        },
+        {
+            "label": "Rename Characters",
+            "command": rename_characters_menu,
+        },
+        {
+            "label": "Update",
+            "command": update_slot,
+        },
+        {
+            "label": "Change Steam ID",
+            "command": set_steam_id_menu,
+        },
+        {
+            "label": "Open File Location",
+            "command": open_folder,
+        },
+    ]
+
+    _get_menu(
+        master_menu=lb,
+        menu_dict_list=rt_click_menu_dict_list,
+        menu_name="Right Click",
+    )
+
+    lb.bind("<Button-3", func=do_popup)
+    load_listbox(listbox=lb)
+
+    # -----------------------------------------------------------
+
     create_save_label(done_img, root_element)
 
     bolded = font_style.Font(weight="bold")  # will use the default font
-    config.cfg["font"] = bolded
+    lb.config(font=bolded)
     lb.grid(row=0, column=3, padx=(110, 0), pady=(30, 0))
 
     # -----------------------------------------------------------
     # right click popup menu in listbox
-    do_popup = get_right_click_menu()
     lb.bind(
         "<Button-3>", do_popup
     )  # button 3 is right click, so when right-clicking inside listbox,
@@ -431,14 +476,6 @@ def initialize_main_gui(root_element: Tk) -> Tk:
 
 
 def get_right_click_menu():
-    def do_popup(event):
-        try:
-            rt_click_menu.tk_popup(
-                event.x_root, event.y_root
-            )  # Grab x,y position of mouse cursor
-        finally:
-            rt_click_menu.grab_release()
-
     rt_click_menu = Menu(lb, tearoff=0)
     # rt_click_menu.add_command(label="Edit Notes", command=open_notes)
     rt_click_menu.add_command(label="Rename Save", command=rename_slot)
@@ -472,7 +509,8 @@ def create_save_label(done_img: PhotoImage, root_element: Tk):
         command=create_save,
     )
     but_go.grid(row=0, column=2, padx=(10, 0), pady=(0, 260))
-    return but_go
+
+    return root_element
 
 
 root = initialize_main_gui(root_element=root)
@@ -492,6 +530,6 @@ if len(config.cfg["steamid"]) != 17:
 
 if __name__ == "__main__":
     changelog()
-    finish_update()
+    finish_update(root_element=root)
     config.set_update(False)
     root.mainloop()

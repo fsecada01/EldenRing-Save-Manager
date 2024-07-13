@@ -209,7 +209,7 @@ def get_char_names_from_file(file_name: str):
         return out
 
 
-def finish_update():
+def finish_update(root_element: Tk):
     if os.path.exists(
         "./data/GameSaveDir.txt"
     ):  # Legacy file for pre v1.5 versions
@@ -227,7 +227,7 @@ def finish_update():
             except Exception:
                 traceback.print_exc()
                 str_err = "".join(traceback.format_exc())
-                popup(str_err)
+                popup(str_err, root_element=root_element)
 
             for directory in os.listdir(
                 save_dir
@@ -256,7 +256,7 @@ def finish_update():
                 except Exception:
                     traceback.print_exc()
                     str_err = "".join(traceback.format_exc())
-                    popup(str_err)
+                    popup(str_err, root_element=root_element)
                     continue
 
 
