@@ -1,4 +1,3 @@
-import re
 import webbrowser
 from tkinter import Button, Label, Menu, Misc, PhotoImage, Tk
 from tkinter import font as font_style
@@ -7,6 +6,7 @@ from typing import Any
 from PIL import Image, ImageTk
 
 from src import itemdata
+from src.app.views.utils import load_backup
 from src.config import config, gamedir
 from src.consts import cr_save_ent, lb, root
 from src.menu import (
@@ -126,24 +126,6 @@ def save_backup():
         return
     else:
         popup("Backup saved successfully", root_element=root)
-
-
-def load_backup():
-    """Quickly load a backup of the current game save. Used from the menubar."""
-    comm = copy_folder(backupdir, gamedir)
-    if os.path.isdir(backupdir) is False:
-        run_command(lambda: os.makedirs(backupdir))
-
-    if len(re.findall(r"\d{17}", str(os.listdir(backupdir)))) < 1:
-        popup("No backup found", root_element=root)
-
-    else:
-        popup(
-            "Overwrite existing save?",
-            command=comm,
-            buttons=True,
-            root_element=root,
-        )
 
 
 def about():

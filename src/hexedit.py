@@ -350,7 +350,6 @@ def get_names(file_name: str):
         names.append(name)
 
     for ind, i in enumerate(names):
-
         if (
             i == "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
             "\x00"
@@ -358,7 +357,6 @@ def get_names(file_name: str):
             names[ind] = None
 
     for ind, i in enumerate(names):
-
         if i is not None:
             names[ind] = i.split("\x00")[
                 0

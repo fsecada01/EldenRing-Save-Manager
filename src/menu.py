@@ -681,7 +681,6 @@ def stat_editor_menu():
 
 def set_steam_id_menu():
     def done():
-
         file = f"{save_dir}{name}/{ext()}"
         id = ent.get()
         x = re.findall(r"\d{17}", str(id))
@@ -981,7 +980,6 @@ def inventory_editor_menu():
         but_done.grid(row=2, column=0, sticky="w", padx=(120, 0), pady=(15, 15))
 
     def find_itemid():
-
         def validate(P):
             if len(P) == 0:
                 return True
@@ -1046,7 +1044,6 @@ def inventory_editor_menu():
                     return
 
                 try:
-
                     config.add_to("custom_ids", {name: id})
                     window.destroy()
                     inventory_editor_menu()
@@ -1149,7 +1146,6 @@ def inventory_editor_menu():
                 lb1.insert(END, "  " + f"{k}: {v}")
 
         def search():
-
             valid = True
             # VALIDATE USER INPUTS
 
@@ -1289,7 +1285,6 @@ def inventory_editor_menu():
         post_but.pack()
 
     def remove_id():
-
         def done():
             name = fetch_listbox_entry(lb1)[1].strip()
             if len(name) < 1:
@@ -1388,7 +1383,6 @@ def inventory_editor_menu():
             # Main GUI content STAT
 
         def replace_item():
-
             item = i_vars.get()
             if item == "Items" or item == "":
                 popup("Select an item first.", parent_window=win)
@@ -1687,7 +1681,6 @@ def recovery_menu():
         pwin.geometry("+%d+%d" % (x + 200, y + 200))
 
     def delete_entry(directory):
-
         def delete(directory):
             delete_folder(directory)
             selected_index = lb1.curselection()
@@ -2412,7 +2405,6 @@ def fix_stats_menu(dest_file, char_ind):
 
 def set_runes_menu():
     def validate(P):
-
         if P.isdigit():
             return True
         else:

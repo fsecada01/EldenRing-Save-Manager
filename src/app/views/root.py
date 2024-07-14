@@ -48,3 +48,6 @@ class Root(Tk):
         bg_img = ImageTk.PhotoImage(image=Image.open(background_img))
         background = Label(self, image=bg_img)  # noqa
         background.place(x=bk_p[0], y=bk_p[1], relwidth=1, relheight=1)
+
+
+root = Root()

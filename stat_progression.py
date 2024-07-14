@@ -1,5 +1,4 @@
 def get_hp(lvl):
-
     hp = {
         1: 300,
         2: 304,
@@ -105,7 +104,6 @@ def get_hp(lvl):
 
 
 def get_fp(lvl):
-
     fp = {
         1: 40,
         2: 43,
@@ -211,7 +209,6 @@ def get_fp(lvl):
 
 
 def get_st(lvl):
-
     stamina = {
         1: 80,
         2: 81,

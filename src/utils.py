@@ -218,7 +218,6 @@ def finish_update(root_element: Tk):
     if (
         config.post_update
     ):  # Will be run on first launch after running update.exe
-
         if not os.path.exists(
             "../data/save-files-pre-V1.5-BACKUP"
         ):  # NONE OF THIS WILL BE RUN ON v1.5+
@@ -232,7 +231,6 @@ def finish_update(root_element: Tk):
             for directory in os.listdir(
                 save_dir
             ):  # Reconstruct save-file structure for pre v1.5 versions
-
                 try:
                     id_str = re.findall(
                         r"\d{17}", str(os.listdir(f"{save_dir}{directory}/"))
@@ -372,8 +370,7 @@ def create_save():
     # duplicates will appear in listbox even though the copy command will
     # overwrite original save
     if len(name) > 0 and is_forbidden is False:
-
-        path = f"{config.cfg["gamedir"]}/{ext()}"
+        path = f"{config.cfg['gamedir']}/{ext()}"
         nms = get_char_names_from_file(file_name=path)
         archive_file(path, name, "ACTION: Clicked Create Save", nms)
 
@@ -626,7 +623,6 @@ def change_default_dir():
         return
 
     else:
-
         config.set("gamedir", newdir)
 
         popup(f"Directory set to:\n {newdir}\n")
