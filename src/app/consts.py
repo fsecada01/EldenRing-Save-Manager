@@ -41,7 +41,7 @@ def create_save():
         if char in r"~'{};:./\,:*?<>|-!@#$%^&()+":
             is_forbidden = True
     if is_forbidden is True:
-        popup(text="Forbidden character.py used", root_element=root)
+        popup(text="Forbidden character used", root_element=root)
 
     if os.path.isdir(save_dir) is False:
         # subprocess.run("md .\\save-files", shell=True)

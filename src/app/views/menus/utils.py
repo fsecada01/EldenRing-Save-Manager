@@ -64,7 +64,7 @@ def get_char_manager_menu():
         key_val = "Character"
         if src_char == key_val or dest_char == key_val:
             win = EldenToplevel(char_pop_up_win, title="Manager")
-            lab = Label(win, text="Select a character.py first")
+            lab = Label(win, text="Select a character first")
             lab.grid(row=0, column=0, padx=15, pady=15, columspan=2)
 
     but_copy = Button(char_pop_up_win, text="Copy", command=do_copy)

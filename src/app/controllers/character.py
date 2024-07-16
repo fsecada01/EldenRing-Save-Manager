@@ -27,7 +27,7 @@ class CharSelectionController(BaseController):
     def _select_char(self):
         """
         Creates a pop-up window with from which a list of characters is
-        presented. The user can select the character.py and proceed with the
+        presented. The user can select the character and proceed with the
         workflow.
         Returns:
         """

@@ -81,7 +81,7 @@ def get_char_names(list_box, drop, v):
 
 
 def char_manager_menu():
-    """Entire character.py manager window for copying characters between save
+    """Entire character manager window for copying characters between save
     files"""
 
     def readme():
@@ -112,13 +112,13 @@ def char_manager_menu():
         src_char = vars1.get()  # "1. charname"
         dest_char = vars2.get()
         if src_char == "Character" or dest_char == "Character":
-            pop_up("Select a character.py first")
+            pop_up("Select a character first")
             return
 
         if src_char.split(".")[1] == " " or dest_char.split(".")[1] == " ":
             pop_up(
                 "Can't write to empty slot.\nGo in-game and create a "
-                "character.py to overwrite."
+                "character to overwrite."
             )
             return
 
@@ -149,16 +149,16 @@ def char_manager_menu():
         if max(Counter(rmv_none).values()) > 1:
             pop_up(
                 """Sorry, Can't handle writing to a DESTINATION file with
-                duplicate character.py names!\n\n You can work around this
-                limitation by using the save file with duplicate character.py
+                duplicate character names!\n\n You can work around this
+                limitation by using the save file with duplicate character
                 names as the SOURCE file:\n 1. Select the save file with
-                duplicate character.py names as the SOURCE file.\n 2. Select a
+                duplicate character names as the SOURCE file.\n 2. Select a
                 different save file as the DESTINATION (can be anything).\n
-                3. Copy the first character.py with duplicate names to
-                DESTINATION file\n 4. Rename the character.py in the DESTINATION
-                file to something different.\n 5. Copy the second character.py
+                3. Copy the first character with duplicate names to
+                DESTINATION file\n 4. Rename the character in the DESTINATION
+                file to something different.\n 5. Copy the second character
                 with duplicate names to the DESTINATION file.\n\n Why do you
-                have to do this? Because character.py names vary greatly in
+                have to do this? Because character names vary greatly in
                 frequency and location\n within the save file, so this tool
                 must replace ALL occurences of a given name.""",
                 bold=False,
@@ -170,7 +170,7 @@ def char_manager_menu():
         backup_path = r"./data/temp/{}".format(ext())
 
         # If performing operations on the same file. Changes name to random,
-        # copies character.py to specified slot, then rewrites the name and
+        # copies character to specified slot, then rewrites the name and
         # re-populates the dropdown entries
         if src_file == dest_file:
             archive_file(dest_file, name2, "ACTION: Copy Character", nms)
@@ -198,10 +198,10 @@ def char_manager_menu():
 
         # If source name in destination file, copies source file to temp
         # folder, changes the name of copied save to random, then copies
-        # source character.py of copied file to destination save file,
+        # source character of copied file to destination save file,
         # and rewrites names on destination file
         elif src_char_real in dest_names:
-            archive_file(dest_file, name2, "ACTION: Copy character.py", nms)
+            archive_file(dest_file, name2, "ACTION: Copy character", nms)
 
             def command():
                 return copy_file(src_file, backup_path)
@@ -224,7 +224,7 @@ def char_manager_menu():
             )
             return
 
-        archive_file(dest_file, name2, "ACTION: Copy character.py", nms)
+        archive_file(dest_file, name2, "ACTION: Copy character", nms)
         hexedit.copy_save(src_file, dest_file, src_ind, dest_ind)
         rename_char(dest_file, src_char_real, dest_ind)
 
@@ -323,7 +323,7 @@ def char_manager_menu():
 
 
 def rename_characters_menu():
-    """Opens popup window and renames character.py of selected listbox item"""
+    """Opens popup window and renames character of selected listbox item"""
 
     def do():
         choice = vars.get()
@@ -387,7 +387,7 @@ def rename_characters_menu():
 
     info_lab = Label(
         rwin,
-        text="Note: If you have more than one character.py\nwith the same name,"
+        text="Note: If you have more than one character\nwith the same name,"
         "\nthis will rename BOTH characters.\n\n",
     )
     info_lab.pack()
@@ -483,9 +483,9 @@ def stat_editor_menu():
             stats = hexedit.get_stats(file, char_slot)[0]
         except Exception:
             # pop_up("Can't get stats, go in-game and\nload into the
-            # character.py first or try leveling up once.")
+            # character first or try leveling up once.")
             popup(
-                "Unable to aquire stats/level.\nYour character.py level may be "
+                "Unable to aquire stats/level.\nYour character level may be "
                 "incorrect.\nFix now?",
                 functions=(
                     lambda: fix_stats_menu(file, char_slot),
@@ -501,7 +501,7 @@ def stat_editor_menu():
         # fai_ent, arc_ent]
         if 0 in stats:
             pop_up(
-                "Can't get stats, go in-game and\nload into the character.py "
+                "Can't get stats, go in-game and\nload into the character "
                 "first or try leveling up once."
             )
             return
@@ -786,7 +786,7 @@ def inventory_editor_menu():
         if char.split(".")[1] == " ":
             pop_up(
                 "Can't write to empty slot.\nGo in-game and create a "
-                "character.py to overwrite."
+                "character to overwrite."
             )
             return
 
@@ -833,7 +833,7 @@ def inventory_editor_menu():
         if char.split(".")[1] == " ":
             pop_up(
                 "Can't write to empty slot.\nGo in-game and create a "
-                "character.py to overwrite."
+                "character to overwrite."
             )
             return
 
@@ -1270,7 +1270,7 @@ def inventory_editor_menu():
             "quantity is different from the original.\n6. Exit to "
             "main menu again.\n7. Enter the new quantity and click "
             "grab data 2.\n8. Repeat the process for #3.\n9. Click "
-            "Search.\n\nNOTE: You must be using the first character.py "
+            "Search.\n\nNOTE: You must be using the first character "
             "in your save file!\n"
         )
         help_lab = Label(window, text=help_text)
@@ -1354,7 +1354,7 @@ def inventory_editor_menu():
             if char.split(".")[1] == " ":
                 popup(
                     "Can't write to empty slot.\nGo in-game and create a "
-                    "character.py to overwrite.",
+                    "character to overwrite.",
                     parent_window=win,
                 )
                 return
@@ -1395,7 +1395,7 @@ def inventory_editor_menu():
             if char.split(".")[1] == " ":
                 popup(
                     "Can't write to empty slot.\nGo in-game and create a "
-                    "character.py to overwrite.",
+                    "character to overwrite.",
                     parent_window=win,
                 )
                 return
@@ -1813,7 +1813,7 @@ def set_playtimes_menu():
         try:
             choice_real = choice.split(". ")[1]
         except IndexError:
-            popup("Select a character.py!")
+            popup("Select a character!")
             return
         slot_ind = int(choice.split(".")[0])
         if (
@@ -2068,7 +2068,7 @@ def import_save_menu(directory: bool = False):
             if char in r"~'{};:./\,:*?<>|-!@#$%^&()+":
                 is_forbidden = True
         if is_forbidden is True:
-            popup("Forbidden character.py used", root_element=root)
+            popup("Forbidden character used", root_element=root)
             return
         elif is_forbidden is False:
             entries = []
@@ -2154,7 +2154,7 @@ def god_mode_menu():
         if char.split(".")[1] == " ":
             popup(
                 "Can't write to empty slot.\nGo in-game and create a "
-                "character.py to overwrite.",
+                "character to overwrite.",
                 parent_window=pop_up_win,
             )
             return
@@ -2183,7 +2183,7 @@ def god_mode_menu():
             # str_err = "".join(traceback.format_exc())
             # popup(str_err, parent_window=pop_up_win)
             popup(
-                "Unable to acquire stats/level.\nYour character.py level "
+                "Unable to acquire stats/level.\nYour character level "
                 "may be incorrect.\nFix now?",
                 functions=(
                     lambda: fix_stats_menu(dest_file, char_ind),
@@ -2209,7 +2209,7 @@ def god_mode_menu():
         "banned.\n\nThis will set your HP,ST,FP to 60,000\n\n Note: Your "
         "stats will return to normal after leveling up or equipping a "
         "stat boosting item. \n\nNote: Remove any stat boosting gear "
-        "from your character.py before doing this or it won't work.\n\n",
+        "from your character before doing this or it won't work.\n\n",
     )
     main_label.pack()
 
@@ -2299,7 +2299,7 @@ def fix_stats_menu(dest_file, char_ind):
 
     main_label = Label(
         pop_up_win,
-        text="Enter your character.py stats.\n\nGo in-game and remove any stat "
+        text="Enter your character stats.\n\nGo in-game and remove any stat "
         "boosting gear and take note of your stats and enter them here:",
     )
     main_label.grid(row=0, column=0, padx=(20, 0), pady=(5, 0), sticky="n")
@@ -2421,7 +2421,7 @@ def set_runes_menu():
         if char.split(".")[1] == " ":
             popup(
                 "Can't write to empty slot.\nGo in-game and create a "
-                "character.py to overwrite.",
+                "character to overwrite.",
                 parent_window=pop_up_win,
             )
             return
@@ -2488,7 +2488,7 @@ def set_runes_menu():
 
     main_label = Label(
         pop_up_win,
-        text="Go in-game and take note of how many held runes the character.py "
+        text="Go in-game and take note of how many held runes the character "
         "has.\nBigger numbers ensure the program finds the proper "
         "location of your runes.\n",
     )

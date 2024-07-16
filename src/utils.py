@@ -203,7 +203,7 @@ def get_char_names_from_file(file_name: str):
     out = hexedit.get_names(file_name)
     if out is False:
         popup(
-            f"Error: Unable to get character.py names.\nDoes the following "
+            f"Error: Unable to get character names.\nDoes the following "
             f"path exist?\n{file_name}",
             root_element=root,
         )
@@ -467,7 +467,7 @@ def rename_slot(list_box: Listbox):
             if char in r"~'{};:./\,:*?<>|-!@#$%^&()+":
                 is_forbidden = True
         if is_forbidden is True:
-            popup("Forbidden character.py used")
+            popup("Forbidden character used")
             return
         elif is_forbidden is False:
             entries = []
@@ -575,7 +575,7 @@ def rename_char(file, nw_nm, dest_slot):
             raise Exception
     except Exception:
         popup(
-            "Error renaming character.py. This may happen\nwith short names "
+            "Error renaming character. This may happen\nwith short names "
             "like '4'.",
             root_element=root,
         )
