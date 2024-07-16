@@ -1,7 +1,7 @@
 import os
 import re
 
-from save_manager import root
+from src.app.views.root import root
 from src.config import gamedir
 from src.os_layer import backupdir, copy_folder
 from src.utils import popup, run_command

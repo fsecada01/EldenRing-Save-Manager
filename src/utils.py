@@ -15,8 +15,9 @@ from types import FunctionType
 import requests
 
 from src import hexedit
+from src.app.consts import root
 from src.config import config, gamedir
-from src.consts import BASE_DIR, cr_save_ent, lb, root
+from src.consts import BASE_DIR
 from src.os_layer import (
     copy_file,
     copy_folder,
@@ -202,8 +203,9 @@ def get_char_names_from_file(file_name: str):
     out = hexedit.get_names(file_name)
     if out is False:
         popup(
-            f"Error: Unable to get character names.\nDoes the following path "
-            f"exist?\n{file_name}"
+            f"Error: Unable to get character.py names.\nDoes the following "
+            f"path exist?\n{file_name}",
+            root_element=root,
         )
     else:
         return out
@@ -275,12 +277,12 @@ def open_game_save_dir():
         return
 
 
-def open_folder():
+def open_folder(list_box: Listbox, root_element: Tk):
     """Right-click open file location in listbox"""
-    if len(lb.curselection()) < 1:
-        popup("No listbox item selected.")
+    if len(list_box.curselection()) < 1:
+        popup("No listbox item selected.", root_element=root_element)
         return
-    name = fetch_listbox_entry(lb)[0]
+    name = fetch_listbox_entry(list_box)[0]
 
     def command():
         return open_folder_standard_explorer(
@@ -320,7 +322,7 @@ def update_app(on_start=False):
 
 
 def help_me():
-    # out = run_command("notepad ./data/readme.txt")
+    # out = run_command("notepad ./data/read_me.txt")
     info = ""
     with open("../data/readme.txt", "r") as f:
         dat = f.readlines()
@@ -340,74 +342,11 @@ def load_listbox(listbox: Listbox):
             listbox.select_set(0)
 
 
-def create_save():
-    """Takes user input from the created save entry box and copies files from
-    game save dir to the save-files dir of app"""
-    if len(config.cfg["gamedir"]) < 2:
-        popup("Set your Default Game Directory first")
-        return
-    name = cr_save_ent.get().strip()
-    new_dir = f"{save_dir}{name.replace(' ', '-')}"
-
-    # Check the given name in the entry
-    if len(name) < 1:
-        popup("No name entered")
-
-    is_forbidden = False
-    for char in name:
-        if char in r"~'{};:./\,:*?<>|-!@#$%^&()+":
-            is_forbidden = True
-    if is_forbidden is True:
-        popup(text="Forbidden character used", root_element=root)
-
-    if os.path.isdir(save_dir) is False:
-        # subprocess.run("md .\\save-files", shell=True)
-        cmd_out = run_command(lambda: os.makedirs(save_dir))
-        if cmd_out[0] == "error":
-            return
-
-    # If new save name doesn't exist, insert it into the listbox, otherwise
-    # duplicates will appear in listbox even though the copy command will
-    # overwrite original save
-    if len(name) > 0 and is_forbidden is False:
-        path = f"{config.cfg['gamedir']}/{ext()}"
-        nms = get_char_names_from_file(file_name=path)
-        archive_file(path, name, "ACTION: Clicked Create Save", nms)
-
-        def cp_to_saves_cmd():
-            return copy_file(path, new_dir)
-
-        # /E – Copy subdirectories, including any empty ones. /H - Copy files
-        # with hidden and system file attributes. /C - Continue copying even
-        # if an error occurs. /I - If in doubt, always assume the destination
-        # is a folder. e.g. when the destination does not exist /Y -
-        # Overwrite all without PROMPT (ex: yes no)
-        if os.path.isdir(new_dir) is False:
-            cmd_out = run_command(lambda: os.makedirs(new_dir))
-            if cmd_out[0] == "error":
-                return
-            lb.insert(END, "  " + name)
-            cmd_out = run_command(cp_to_saves_cmd)
-            if cmd_out[0] == "error":
-                return
-            create_notes(name, new_dir)
-        else:
-            popup(
-                "File already exists, OVERWRITE?",
-                root_element=root,
-                command=cp_to_saves_cmd,
-                buttons=True,
-            )
-        # save_path = f"{new_dir}/{user_steam_id}/ER0000.sl2"
-        # nms = get_char_names_from_file(save_path)
-        # archive_file(save_path, f"ACTION: Create save\nCHARACTERS: {nms}")
-
-
 def do_nothing():
     pass
 
 
-def load_save_from_lb():
+def load_save_from_lb(list_box: Listbox):
     """Fetches currently selected listbox item and copies files to game save
     dir."""
 
@@ -433,10 +372,10 @@ def load_save_from_lb():
             )
             run_command(command)
 
-    if len(lb.curselection()) < 1:
+    if len(list_box.curselection()) < 1:
         popup("No listbox item selected.")
         return
-    name = fetch_listbox_entry(lb)[0]
+    name = fetch_listbox_entry(list_box)[0]
     src_dir = "".join((save_dir, name.replace(" ", "-"), "/"))
 
     if not os.path.isdir(f"{save_dir}{name}"):
@@ -445,8 +384,8 @@ def load_save_from_lb():
             "data/save-files?",
             root_element=root,
         )
-        lb.delete(0, END)
-        load_listbox(lb)
+        list_box.delete(0, END)
+        load_listbox(list_box)
         return
 
     def command_func():
@@ -474,9 +413,9 @@ def run_command(subprocess_command, optional_success_out="OK"):
     return "Successfully completed operation", optional_success_out
 
 
-def delete_save():
+def delete_save(list_box: Listbox):
     """Removes entire directory in save-files dir"""
-    name = fetch_listbox_entry(lb)[0]
+    name = fetch_listbox_entry(list_box)[0]
 
     def yes():
         def command():
@@ -486,14 +425,14 @@ def delete_save():
         chars = get_char_names_from_file(file_name=path)
         archive_file(path, name, "ACTION: Delete save file in Manager", chars)
         run_command(command)
-        lb.delete(0, END)
-        load_listbox(lb)
+        list_box.delete(0, END)
+        load_listbox(list_box)
 
     def no():
         return
 
     popup(
-        f"Delete {fetch_listbox_entry(lb)[1]}?",
+        f"Delete {fetch_listbox_entry(list_box)[1]}?",
         root_element=root,
         functions=(yes, no),
         buttons=True,
@@ -512,7 +451,7 @@ def fetch_listbox_entry(list_box):
     return internal_name, name
 
 
-def rename_slot():
+def rename_slot(list_box: Listbox):
     """Renames the name in save file listbox"""
 
     def cancel():
@@ -528,7 +467,7 @@ def rename_slot():
             if char in r"~'{};:./\,:*?<>|-!@#$%^&()+":
                 is_forbidden = True
         if is_forbidden is True:
-            popup("Forbidden character used")
+            popup("Forbidden character.py used")
             return
         elif is_forbidden is False:
             entries = []
@@ -548,11 +487,11 @@ def rename_slot():
                     )
 
                 run_command(command)
-                lb.delete(0, END)
-                load_listbox(lb)
+                list_box.delete(0, END)
+                load_listbox(list_box)
                 pop_up_win.destroy()
 
-    lst_box_choice = fetch_listbox_entry(lb)[0]
+    lst_box_choice = fetch_listbox_entry(list_box)[0]
     if len(lst_box_choice) < 1:
         popup("No listbox item selected.")
         return
@@ -577,7 +516,7 @@ def rename_slot():
     but_cancel.grid(row=2, column=0, padx=(70, 0), pady=(0, 15))
 
 
-def update_slot():
+def update_slot(list_box: Listbox, root_element: Tk):
     """Update the selected savefile with the current elden ring savedata"""
 
     def do(file):
@@ -593,9 +532,9 @@ def update_slot():
             f"{config.cfg['gamedir']}/{ext()}", f"{save_dir}{lst_box_choice}"
         )
 
-    lst_box_choice = fetch_listbox_entry(lb)[0]
+    lst_box_choice = fetch_listbox_entry(list_box)[0]
     if len(lst_box_choice) < 1:
-        popup("No listbox item selected.")
+        popup("No listbox item selected.", root_element=root_element)
         return
     path = f"{save_dir}{lst_box_choice}/{ext()}"
 
@@ -636,8 +575,9 @@ def rename_char(file, nw_nm, dest_slot):
             raise Exception
     except Exception:
         popup(
-            "Error renaming character. This may happen\nwith short names like "
-            "'4'."
+            "Error renaming character.py. This may happen\nwith short names "
+            "like '4'.",
+            root_element=root,
         )
         raise
 

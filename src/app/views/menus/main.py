@@ -1,11 +1,10 @@
 import webbrowser
 from tkinter import Menu
-from tkinter.ttk import Button, Frame, Label
-from typing import Any
 
+from src.app.consts import lb
+from src.app.views.menus.menu import EldenMenu, get_elden_menu
 from src.app.views.root import root
 from src.app.views.utils import load_backup
-from src.logging import logger
 from src.menu import (
     change_default_steamid_menu,
     char_manager_menu,
@@ -13,8 +12,10 @@ from src.menu import (
     import_save_menu,
     inventory_editor_menu,
     recovery_menu,
+    rename_characters_menu,
     seamless_coop_menu,
     set_runes_menu,
+    set_steam_id_menu,
     stat_editor_menu,
 )
 from src.os_layer import video_url
@@ -22,85 +23,13 @@ from src.utils import (
     change_default_dir,
     changelog,
     force_quit,
+    open_folder,
     open_game_save_dir,
     popup,
+    rename_slot,
     update_app,
+    update_slot,
 )
-
-
-class EldenMenu(Menu):
-    def __init__(
-        self,
-        master,
-        label: str,
-        command_list_dict: list[dict[str, Any]] | None = None,
-        *args,
-        **kwargs,
-    ):
-        super().__init__(self, master, *args, **kwargs)
-        self.master = master
-        self.label = label
-
-        if command_list_dict is None:
-            command_list_dict = []
-
-        self.set_commands(command_list_dict=command_list_dict)
-
-    def set_commands(
-        self,
-        command_list_dict: list[dict[str, Any]] | None = None,
-        separator: bool = False,
-    ):
-        if separator:
-            self.add_separator()
-        if command_list_dict:
-            list(
-                map(
-                    lambda menu_dict: self.add_command(
-                        label=menu_dict["label"].split()[0].title(),
-                        command=menu_dict["command"],
-                    ),
-                    command_list_dict,
-                )
-            )
-
-            logger.info(
-                f"Commands set for the following commands: "
-                f"{[x.get('Label') for x in command_list_dict]}"
-            )
-        else:
-            logger.info(
-                "Command List dict object is empty. Please provide a "
-                "list of commands dict objects to process."
-            )
-
-
-class View(Frame):
-    def __init__(self, parent, label_name: str):
-        super().__init__(parent)
-
-        self.parent = parent
-        self.label = Label(self, text=label_name)
-        self.label.grid(row=1, column=0)
-        self.controller = None
-        self.button_count = 0
-        self.label_count = 1
-
-    def set_controller(self, controller):
-        self.controller = controller
-
-    def set_button(self, button_name: str, command):
-        button = Button(self, text=button_name, command=command)
-        button.grid(row=self.button_count + 1, column=0)
-        setattr(self, f"{button_name.lower()}_button", button)
-        self.button_count += 1
-
-    def set_label(self, label_name: str):
-        label = Label(self, text=label_name)
-        label.grid(row=self.label_count + 1, column=0)
-        setattr(self, f"{label_name.lower()}_label", label)
-        self.label_count += 1
-
 
 file_menu_dict_list = [
     {
@@ -134,7 +63,6 @@ file_menu_dict_list = [
         "command": lambda: exit(),
     },
 ]
-
 edit_menu_dict_list = [
     {
         "label": "Change Default Directory",
@@ -149,7 +77,6 @@ edit_menu_dict_list = [
         "command": update_app,
     },
 ]
-
 tool_menu_dict_list = [
     {
         "label": "Character Manager",
@@ -168,7 +95,6 @@ tool_menu_dict_list = [
         "command": recovery_menu,
     },
 ]
-
 cheat_menu_dict_list = [
     {
         "label": "God Mode",
@@ -179,7 +105,6 @@ cheat_menu_dict_list = [
         "command": set_runes_menu,
     },
 ]
-
 help_menu_dict_list = [
     {
         "label": "Watch Video",
@@ -199,17 +124,60 @@ help_menu_dict_list = [
         ),
     },
 ]
-
-file_menu, edit_menu, tool_menu, cheat_menu, help_menu = [
-    EldenMenu(root, command_list_dict=menu_dict_list, label=label_name)
-    for menu_dict_list, label_name in [
-        (file_menu_dict_list[:4], "File"),
-        (edit_menu_dict_list, "Edit"),
-        (tool_menu_dict_list, "Tool"),
-        (cheat_menu_dict_list, "Cheat"),
-        (help_menu_dict_list, "Help"),
-    ]
+right_click_menu_dict_list = [
+    {
+        "label": "Rename Save",
+        "command": lambda: rename_slot(list_box=lb),
+    },
+    {
+        "label": "Rename Characters",
+        "command": rename_characters_menu,
+    },
+    {
+        "label": "Update",
+        "command": lambda: update_slot(list_box=lb, root_element=root),
+    },
+    {
+        "label": "Change SteamID",
+        "command": set_steam_id_menu,
+    },
+    {
+        "label": "Open File Location",
+        "command": lambda: open_folder(list_box=lb, root_element=root),
+    },
 ]
+rt_click_menu = EldenMenu(
+    lb,
+    name="Right Click Menu",
+    command_list_dict=right_click_menu_dict_list,
+    tearoff=0,
+)
+
+file_menu, edit_menu, tool_menu, cheat_menu, help_menu = list(
+    map(
+        lambda args: get_elden_menu(
+            master=root, command_list_dict=args[0], name=args[1]
+        ),
+        [
+            (file_menu_dict_list[:4], "File"),
+            (edit_menu_dict_list, "Edit"),
+            (tool_menu_dict_list, "Tool"),
+            (cheat_menu_dict_list, "Cheat"),
+            (help_menu_dict_list, "Help"),
+        ],
+    )
+)
+
 file_menu.set_commands(
     separator=True, command_list_dict=file_menu_dict_list[4:]
 )
+menubar = Menu(root)
+
+for name, menu in [
+    ("File", file_menu),
+    ("Edit", edit_menu),
+    ("Tool", tool_menu),
+    ("Cheat", cheat_menu),
+    ("Help", help_menu),
+]:
+    menubar.add_cascade(label=name, menu=menu)

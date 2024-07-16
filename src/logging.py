@@ -1,3 +1,5 @@
+import sys
+
 from loguru import logger
 
-logger.add(colorize=True)
+logger.add(sys.stdout, colorize=True)

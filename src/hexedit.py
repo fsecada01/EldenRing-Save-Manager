@@ -116,7 +116,7 @@ def recalc_checksum(file_name: str):
 
 def change_name(file_name: str, nw_nm: str, dest_slot: int):
     """
-    Changes the character name in a binary file at a specified slot.
+    Changes the character.py name in a binary file at a specified slot.
 
     Args:
         file_name (str): The path to the binary file.
@@ -249,8 +249,8 @@ def copy_save(src_file: str, dest_file: str, src_char: int, dest_char: int):
     Args:
         src_file (str): The path to the source save file.
         dest_file (str): The path to the destination save file.
-        src_char (int): The source character slot number.
-        dest_char (int): The destination character slot number.
+        src_char (int): The source character.py slot number.
+        dest_char (int): The destination character.py slot number.
 
     Returns:
         None.
@@ -259,20 +259,20 @@ def copy_save(src_file: str, dest_file: str, src_char: int, dest_char: int):
         None.
     """
 
-    # Length of a character slot
+    # Length of a character.py slot
     slot_len = 2621456
 
     # Get levels of characters from the source save file
     lvls = get_levels(src_file)
 
-    # Retrieve the level of the source character
+    # Retrieve the level of the source character.py
     lvl = lvls[src_char - 1]
 
     # Read the contents of the source save file
     with open(src_file, "rb") as fh:
         dat = fh.read()
 
-    # Select the appropriate character slot from the source save file
+    # Select the appropriate character.py slot from the source save file
     if src_char == 1:
         src_slot = dat[0x00000310 : 0x0028030F + 1]
     else:
@@ -295,7 +295,7 @@ def copy_save(src_file: str, dest_file: str, src_char: int, dest_char: int):
         slot_s = dat1[: 0x00000310 + ((dest_char - 1) * slot_len)]
         slot_e = dat1[0x0028030F + ((dest_char - 1) * slot_len) + 1 :]
 
-    # Combine the character slot from the source save file with the
+    # Combine the character.py slot from the source save file with the
     # destination save file
     dat1 = slot_s + src_slot + slot_e
 
@@ -303,7 +303,7 @@ def copy_save(src_file: str, dest_file: str, src_char: int, dest_char: int):
     with open(dest_file, "wb") as fh:
         fh.write(dat1)
 
-    # Set the character level in the destination save file
+    # Set the character.py level in the destination save file
     set_level(dest_file, dest_char, lvl)
 
 
@@ -323,7 +323,7 @@ def get_names(file_name: str):
     except FileNotFoundError:
         return False
 
-    # Start address of each character slot name
+    # Start address of each character.py slot name
     hex_locations = [
         0x1901D0E,
         0x1901F5A,
@@ -374,7 +374,7 @@ def get_names(file_name: str):
 
 
 def random_str():
-    """Generates random 16 character long name"""
+    """Generates random 16 character.py long name"""
     val = range(random.randint(900, 900000))
     hashed = hashlib.sha1(str(val).encode())
     random_name = base64.urlsafe_b64encode(hashed.digest()[:12])
@@ -459,11 +459,11 @@ def get_slot_slices(file):
 
 def set_stats(file, char_num, stat_ls):
     """
-    Set the stats of a character in a file.
+    Set the stats of a character.py in a file.
 
     Parameters:
         file (str): The file to modify.
-        char_num (int): The character number.
+        char_num (int): The character.py number.
         stat_ls (list): The list of new stats.
 
     Returns:
@@ -475,7 +475,7 @@ def set_stats(file, char_num, stat_ls):
 
     index = 0
     for loc in locs:
-        # Get the character's slots and slot slices
+        # Get the character.py's slots and slot slices
         slots = get_slot_ls(file)
         slot_slices = get_slot_slices(file)
         dest_char = slots[char_num - 1]
@@ -484,7 +484,7 @@ def set_stats(file, char_num, stat_ls):
             # Last value is the level index
             lvl_ind = loc
 
-            # Get the current level of the character
+            # Get the current level of the character.py
             dest_char[lvl_ind : lvl_ind + 1]
 
             # Calculate the new level by subtracting 79 from the sum of the
@@ -528,30 +528,30 @@ def set_stats(file, char_num, stat_ls):
             fh.write(data)
         index += 1
 
-    # Update the character's level in the file
+    # Update the character.py's level in the file
     set_level(file, char_num, new_lvl_int)
 
 
 def get_stats(file, char_slot):
     """
-    Retrieve the stats and corresponding indexes for a character from a file.
+    Retrieve the stats and corresponding indexes for a character.py from a file.
 
     Parameters:
         file (str): The file to read from.
-        char_slot (int): The character slot number.
+        char_slot (int): The character.py slot number.
 
     Returns: list: A list containing the stats, indexes, hp_inds, stam_inds,
     and fp_in's.
     """
 
     lvls = get_levels(file)  # Get the levels of all characters
-    lv = lvls[char_slot - 1]  # Get the level of the specified character slot
-    slots = get_slot_ls(file)  # Get the character slots
+    lv = lvls[char_slot - 1]  # Get the level of the specified character.py slot
+    slots = get_slot_ls(file)  # Get the character.py slots
 
     start_ind = 0
     slot1 = slots[
         char_slot - 1
-    ]  # Get the slot data for the specified character slot
+    ]  # Get the slot data for the specified character.py slot
     indexes = []  # List to store the indexes of the stats
 
     for ind, _b in enumerate(slot1):
@@ -674,10 +674,10 @@ def get_levels(file):
 
 def set_attributes(file: str, slot: int, lvls: list, cheat: bool = False):
     """
-    Sets the attributes (HP, FP, ST) of a character in a given slot.
+    Sets the attributes (HP, FP, ST) of a character.py in a given slot.
 
     Parameters: file (str): The file path of the save file.
-        slot (int): The character slot number.
+        slot (int): The character.py slot number.
         lvls (list): A list of attribute levels [hp_level, fp_level, st_level].
         cheat (bool, optional): Flag indicating whether to set attributes to
             maximum value. Defaults to False.
@@ -730,13 +730,13 @@ def set_attributes(file: str, slot: int, lvls: list, cheat: bool = False):
 
 def add_item(file: str, slot: int, itemid: str | int, quantity: int):
     """
-    Adds an item with the specified item IDs and quantity to a character's
+    Adds an item with the specified item IDs and quantity to a character.py's
     inventory in a given slot.
 
     Parameters:
         itemid:
         file (str): The file path of the save file.
-        slot (int): The character slot number.
+        slot (int): The character.py slot number.
         quantity (int): The quantity of the item to add.
 
     Returns:
@@ -900,7 +900,7 @@ def set_starting_class(file, slot, char_class):
     slices = get_slot_slices(file)
     s_start = slices[slot - 1][0]
     s_end = slices[slot - 1][1]
-    pos = 42165  # class flag is 42165 bytes from start of character block
+    pos = 42165  # class flag is 42165 bytes from start of character.py block
     classes = {
         "Vagabond": 0,
         "Warrior": 1,

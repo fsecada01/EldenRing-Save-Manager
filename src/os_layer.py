@@ -19,6 +19,7 @@ v_num = 1.73  # Used for checking version for update
 video_url = "https://youtu.be/LQxmFuq3dfg"
 custom_search_tutorial_url = "https://youtu.be/li-ZiMXBmRk"
 background_img = (_main_dir / "data/background.png").resolve()
+done_img = (_main_dir / "data/assets/but_done.png").resolve()
 icon_file = (_main_dir / "data/icon.ico").resolve()
 bk_p = (-140, 20)  # Background image position
 is_windows = any(platform.win32_ver()) or hasattr(sys, "getwindowsversion")
